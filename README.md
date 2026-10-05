@@ -56,6 +56,20 @@ Connection modes: **Default SWD**, **Under-reset (nRST)**, and **Power-race**
 
 ## Hardware
 
+### Option A — the X3-Tuner PCB (all-in-one)
+
+[`hardware/`](hardware/) contains a ready-to-order board built only for this
+job (documentation in German): ESP32-S3-WROOM-1-**N16R8** (16 MB flash, 8 MB
+PSRAM), USB-C with the S3's native USB (no USB-UART chip), a 1S LiPo with
+TP4056 charger and DW01A protection, and a **GPIO-switched 3.3 V supply for the
+VCU** that lets the firmware run *Power-race* by itself. It is a 38 × 60 mm
+two-layer board with all parts on one side, plus Gerber, BOM and CPL files for
+JLCPCB assembly. Build the firmware with `pio run -e x3tuner -t upload`.
+
+![X3-Tuner PCB](hardware/docs/pcb-top.png)
+
+### Option B — any ESP32 dev board
+
 - An **ESP32** board (classic ESP32, or an S3 / C3 — see `platformio.ini`).
 - Four wires to the scooter's debug header: **SWCLK**, **SWDIO**, **GND**, and
   **nRST / C45** (strongly recommended — needed for Under-reset mode and most
@@ -87,6 +101,8 @@ pio run -e esp32dev -t upload
 
 # or an S3 / C3 board
 pio run -e esp32-s3 -t upload
+# the X3-Tuner PCB from hardware/ (ESP32-S3 N16R8, native USB)
+pio run -e x3tuner -t upload
 pio run -e esp32-c3 -t upload
 
 # watch the serial log (shows the WiFi IP)

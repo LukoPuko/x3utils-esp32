@@ -1,5 +1,6 @@
 #include "x3_ops.h"
 
+#include "board.h"
 #include "config.h"
 #include "fw_ident.h"
 
@@ -56,11 +57,30 @@ bool X3Ops::request(OpKind kind, OpMode mode, const String &mcuModel, String &wh
 
 bool X3Ops::connect(OpMode mode, TargetInfo &t, String &err) {
   if (mode == OpMode::race) {
-    log("[race] applying power now — hammering connect. Press Abort to stop.");
+    // On the X3-Tuner PCB the tool switches the VCU's 3.3 V itself, so the
+    // race starts exactly at power-on instead of relying on a human hand.
+    bool autoPower = x3board.hasTargetPower();
+    if (autoPower && !x3board.targetPowered() && x3board.targetMillivolts() > TARGET_EXTERNAL_MV) {
+      log("[race] VCU is powered from another source — power-cycle it by hand.");
+      autoPower = false;
+    }
+    if (autoPower) {
+      log("[race] switching the VCU supply off and letting it discharge…");
+      if (!x3board.dischargeTarget(3000)) log("[race] VCU rail still above 0.3 V — continuing anyway");
+      delay(200);
+      log("[race] powering the VCU and hammering connect. Press Abort to stop.");
+    } else {
+      log("[race] applying power now — hammering connect. Press Abort to stop.");
+    }
     uint32_t attempt = 0;
     for (;;) {
       if (_abort) { err = "aborted"; return false; }
       attempt++;
+      if (autoPower && attempt == 1) {
+        String why;
+        // External supply was ruled out above; what is left is our own charge.
+        if (!x3board.setTargetPower(true, why, true)) { err = why; return false; }
+      }
       if (_at32.connect(ConnectMode::normal, t, err)) {
         log(String("== caught on attempt ") + attempt + " ==");
         return true;

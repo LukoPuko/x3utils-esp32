@@ -4,3 +4,13 @@
 !*/firmware.bin
 build/
 .DS_Store
+
+# KiCad / hardware generator scratch
+hardware/kicad/*.dsn
+hardware/kicad/logs/
+hardware/kicad/*.kicad_prl
+hardware/kicad/*-backups/
+hardware/kicad/fp-info-cache
+hardware/kicad/_autosave-*
+hardware/kicad/~*.lck
+__pycache__/

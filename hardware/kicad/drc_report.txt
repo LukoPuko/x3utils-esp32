@@ -1,0 +1,10 @@
+** Drc report for /home/user/x3utils-esp32/hardware/kicad/x3tuner.kicad_pcb **
+** Created on 2026-10-05 20:38:54 **
+
+** Found 0 DRC violations **
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **

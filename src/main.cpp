@@ -14,6 +14,7 @@
 #include <WiFi.h>
 
 #include "at32.h"
+#include "board.h"
 #include "config.h"
 #include "fw_ident.h"
 #include "swd.h"
@@ -176,7 +177,32 @@ static void routes() {
     doc["haveBackup"] = ops.backupLength() > 0;
     String tn = at32.target().name;
     doc["target"] = (tn.length() && tn != "unknown") ? tn : "no target";
+    // X3-Tuner board telemetry (null/false on plain dev boards).
+    int vbat = x3board.batteryMillivolts();
+    if (vbat >= 0) { doc["vbat"] = vbat; doc["bat"] = x3board.batteryPercent(); }
+    doc["usb"] = x3board.usbPresent();
+    doc["hasTgtPower"] = x3board.hasTargetPower();
+    doc["tgtPower"] = x3board.targetPowered();
+    int vtgt = x3board.targetMillivolts();
+    if (vtgt >= 0) doc["vtgt"] = vtgt;
     String out; serializeJson(doc, out);
+    sendJson(req, out);
+  });
+
+  // Switch the board's 3.3 V supply for the VCU (X3-Tuner PCB only).
+  server.on("/api/target", HTTP_POST, [](AsyncWebServerRequest *req) {},
+            nullptr,
+            [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t index, size_t total) {
+    if (index + len != total) return;  // only act on a complete (single-chunk) body
+    JsonDocument doc;
+    if (deserializeJson(doc, data, len)) { sendJson(req, "{\"ok\":false,\"why\":\"bad JSON\"}"); return; }
+    if (ops.busy()) { sendJson(req, "{\"ok\":false,\"why\":\"an operation is running\"}"); return; }
+    String why;
+    bool ok = x3board.setTargetPower(doc["on"] | false, why);
+    JsonDocument res;
+    res["ok"] = ok;
+    if (!ok) res["why"] = why;
+    String out; serializeJson(res, out);
     sendJson(req, out);
   });
 
@@ -245,6 +271,7 @@ void setup() {
   delay(200);
   Serial.println("\nx3utils-esp32 starting");
 
+  x3board.begin();  // target supply off first thing
   loadSettings();
 
   if (!ops.begin()) {
@@ -266,6 +293,7 @@ void setup() {
 
 void loop() {
   ops.loopTick();
+  x3board.loopTick(ops.busy());
   ws.cleanupClients();
   delay(1);
 }

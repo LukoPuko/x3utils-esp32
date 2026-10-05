@@ -74,6 +74,18 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
     </div>
   </div>
 
+  <div class="card hide" id="hwCard">
+    <div class="row" style="justify-content:space-between">
+      <strong style="font-size:14px">X3-Tuner</strong>
+      <span class="pill"><span id="batTxt">battery —</span></span>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:10px">
+      <span class="pill"><span id="tdot" class="dot"></span><span id="vtgtTxt">VCU 3V3: —</span></span>
+      <button class="act" id="tgtBtn" style="padding:9px 12px">VCU power ON</button>
+    </div>
+    <div class="sub" style="margin:8px 0 0">The tool can power the VCU itself (3.3 V, switched). It refuses when the VCU is already powered from another source. Power-race uses it automatically.</div>
+  </div>
+
   <div class="card">
     <div class="grid">
       <button class="act" data-op="check">Check connection<small>read-only probe</small></button>
@@ -202,13 +214,30 @@ function connectWS(){
   ws.onclose=()=>setTimeout(connectWS,1500);
 }
 
+let tgtOn=false;
 function refreshStatus(){
   fetch("/api/status").then(r=>r.json()).then(j=>{
     $("#tinfo").textContent=j.target||"no target";
     $("#dlBackup").classList.toggle("hide",!j.haveBackup);
-    if(j.target&&j.target!=="no target"){$("#cdot").className="dot ok";}
+    if(j.target&&j.target!=="no target"&&!busy){$("#cdot").className="dot ok";}
+    const hw=j.hasTgtPower||j.vbat!==undefined;
+    $("#hwCard").classList.toggle("hide",!hw);
+    if(!hw)return;
+    $("#batTxt").textContent=(j.vbat!==undefined?("battery "+j.bat+"% · "+(j.vbat/1000).toFixed(2)+" V"):"battery —")+(j.usb?" · USB ⚡":"");
+    tgtOn=!!j.tgtPower;
+    const v=j.vtgt!==undefined?(j.vtgt/1000).toFixed(2)+" V":"—";
+    $("#vtgtTxt").textContent="VCU 3V3: "+v+(tgtOn?" (from tool)":(j.vtgt>1000?" (external)":""));
+    $("#tdot").className="dot "+(j.vtgt>1000?"ok":"");
+    $("#tgtBtn").textContent=tgtOn?"VCU power OFF":"VCU power ON";
+    $("#tgtBtn").classList.toggle("danger",tgtOn);
   }).catch(()=>{});
 }
+$("#tgtBtn").addEventListener("click",()=>{
+  fetch("/api/target",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({on:!tgtOn})})
+    .then(r=>r.json()).then(j=>{if(!j.ok)toast(j.why||"refused","bad");refreshStatus();})
+    .catch(()=>toast("request failed","bad"));
+});
+setInterval(()=>{if(!document.hidden)refreshStatus();},3000);
 
 function loadSettings(){
   fetch("/api/settings").then(r=>r.json()).then(j=>{

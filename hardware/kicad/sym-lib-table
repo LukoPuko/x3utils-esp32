@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "x3tuner")(type "KiCad")(uri "${KIPRJMOD}/x3tuner.kicad_sym")(options "")(descr "X3-Tuner project symbols"))
+)
