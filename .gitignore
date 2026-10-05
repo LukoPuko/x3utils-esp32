@@ -1,0 +1,6 @@
+.pio/
+.vscode/
+*.bin
+!*/firmware.bin
+build/
+.DS_Store
