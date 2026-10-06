@@ -237,12 +237,13 @@ flashen, testen, Akku einlegen, Deckel aufklicken. Ein Spritzguss-Gehäuse
 ## Gehäuse
 
 Ein passendes, schraubenloses **3D-Druck-Gehäuse** inklusive Akkufach liegt in
-[`case/`](case/): ca. **42 × 65 × 17 mm**, mit Federtasten, LED-Fenstern und
-gravierter SWD-Belegung. Druck- und Montageanleitung stehen in [`case/README.md`](case/README.md).
+[`case/`](case/). Es ist facettiert im „Stick"-Look, ca. **42 × 68 × 17 mm** groß
+und hat Lichtschlitze, Pin-Löcher für RESET/BOOT und eine gravierte SWD-Belegung.
+Druck- und Montageanleitung stehen in [`case/README.md`](case/README.md).
 
-| | |
-|---|---|
-| ![Gehäuse](docs/case-assembly.png) | ![Explosionsansicht](docs/case-exploded.png) |
+| Zusammengebaut | Durchsichtig (Aufbau) | Schnitt |
+|---|---|---|
+| ![Gehäuse](docs/case-assembly.png) | ![Röntgenansicht](docs/case-xray.png) | ![Schnitt](docs/case-section.png) |
 
 ---
 
@@ -312,7 +313,7 @@ hardware/
 ├── gen/drc.py            KiCad-DRC
 ├── gen/make_fab.py       Gerber/Bohrdaten, BOM, CPL, PDFs, Bilder
 ├── gen/build.sh          alles in einem Rutsch
-├── gen/make_case.sh      Gehäuse: Positionen aus circuit.py → STL + Bilder (OpenSCAD)
+├── gen/make_case.sh      Gehäuse: Positionen aus circuit.py → STL, Renderings, Maßblatt (OpenSCAD)
 ├── kicad/                KiCad-7-Projekt (mit KiCad 7 oder neuer öffnen und bearbeiten)
 ├── gen/make_panel.py     10er-Nutzen für Serien (KiKit; KIKIT=/pfad/zu/kikit)
 ├── production/           Fertigungsdaten (JLCPCB + herstellerneutrale Stückliste)

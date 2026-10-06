@@ -10,6 +10,11 @@ Y = 0, antenna end at Y = BOARD_H), Z = up. Units mm.
 import os
 import sys
 
+try:  # optional: the parts list for the preview renders needs KiCad's pcbnew
+    import pcbnew
+except ImportError:
+    pcbnew = None
+
 sys.path.insert(0, os.path.dirname(__file__))
 import circuit as C  # noqa: E402
 
@@ -23,6 +28,46 @@ def pos(ref):
 
 def Y(y):
     return round(C.BOARD_H - y, 3)
+
+
+# Body height (mm) and colour of the small parts in the preview renders, by
+# footprint name prefix. Connectors, switches and the module have their own
+# models in x3tuner_case.scad.
+BODY = [("R_0402", 0.35, "#1b1b1b"), ("C_0402", 0.5, "#b8946a"), ("C_0603", 0.8, "#b8946a"),
+        ("C_0805", 1.0, "#b8946a"), ("LED_", 0.6, None), ("SOT-23", 1.1, "#2b2b2b"),
+        ("D_SOD-123", 1.1, "#2b2b2b"), ("SOIC-8", 1.6, "#2b2b2b"), ("TestPoint", 0.05, "#d4af37")]
+OWN_MODEL = {"U1", "J1", "J2", "J3", "SW1", "SW2", "SW3"}
+LED_COLOR = {"red": "#ff3030", "green": "#30e040", "yellow": "#ffd21a"}
+
+
+def part_boxes():
+    """[x0, y0, w, h, height, colour] per small part, SCAD coordinates."""
+    path = os.path.join(os.path.dirname(OUT), "..", "kicad", C.PROJECT + ".kicad_pcb")
+    if pcbnew is None or not os.path.exists(path):
+        return []
+    board = pcbnew.LoadBoard(path)
+    edge = board.GetBoardEdgesBoundingBox()
+    ox, oy = pcbnew.ToMM(edge.GetLeft()) + 0.05, pcbnew.ToMM(edge.GetTop()) + 0.05
+    value = {p.ref: p.value for p in C.PARTS}
+    boxes = []
+    for fp in board.GetFootprints():
+        ref = fp.GetReference()
+        name = fp.GetFPID().GetLibItemName().wx_str()
+        body = next((b for b in BODY if name.startswith(b[0])), None)
+        if ref in OWN_MODEL or body is None:
+            continue
+        items = [i for i in fp.GraphicalItems() if i.GetLayer() == pcbnew.F_Fab
+                 and not isinstance(i, pcbnew.FP_TEXT)] or list(fp.Pads())
+        xs, ys = [], []
+        for it in items:
+            r = it.GetBoundingBox()
+            xs += [pcbnew.ToMM(r.GetLeft()), pcbnew.ToMM(r.GetRight())]
+            ys += [pcbnew.ToMM(r.GetTop()), pcbnew.ToMM(r.GetBottom())]
+        x0, y1 = min(xs) - ox, max(ys) - oy
+        w, h = max(xs) - min(xs) - 0.1, max(ys) - min(ys) - 0.1
+        colour = body[2] or LED_COLOR.get(value.get(ref), "#ffffff")
+        boxes.append("[%.2f, %.2f, %.2f, %.2f, %s, \"%s\"]" % (x0 + 0.05, Y(y1) + 0.05, w, h, body[1], colour))
+    return sorted(boxes)
 
 
 def main():
@@ -64,6 +109,8 @@ def main():
             round((pos("D2")[0] + pos("D3")[0]) / 2, 3), Y((pos("D2")[1] + pos("D3")[1]) / 2)),
         # free spots on the board where lid posts may press the PCB down
         "LID_POSTS = [%s];" % ", ".join("[%s, %s]" % (x, Y(y)) for x, y in C.CASE_POSTS),
+        "// small parts for the preview renders: [x0, y0, w, h, height, colour]",
+        "PARTS = [\n  %s\n];" % ",\n  ".join(part_boxes()),
     ]
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
