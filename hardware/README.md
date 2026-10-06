@@ -83,6 +83,27 @@ Messeingänge sind ADC1, denn ADC2 funktioniert beim C3 nicht, solange WLAN läu
 
 ---
 
+### Warum ein fertiges Modul und kein nackter ESP32-C3-Chip?
+
+Live-Preise von jlcpcb.com, Stand 6.10.2026, jeweils der 1+-Preis:
+
+| | WROOM-02 (Modul) | nackter Chip ESP32-C3FH4 |
+|---|---|---|
+| Funkchip | 3,29 $ (alles drin) | 2,09 $ |
+| 40-MHz-Quarz | im Modul | 0,11 $, *Extended* (kein Basic-Quarz mit 40 MHz) |
+| Antenne | im Modul | Leiterbahn-Antenne; Chip-Antennen bei JLC nicht auf Lager |
+| HF-Anpassung (Spule 2,7 nH + Kondensator 1,8 pF) | im Modul | je *Extended* |
+| **Teile pro Platine** | **3,29 $** | **≈ 2,25 $** |
+| Extended-Gebühren pro Auftrag | 3 $ | 12 $ (Chip, Quarz, Spule, Kondensator) |
+| Funkzulassung (CE/RED) | Modul ist zertifiziert, Funkprüfberichte nutzbar | eigene Funkprüfung im Labor, ca. 3.000–8.000 € |
+| Platine | 2 Lagen reichen | Espressif empfiehlt 4 Lagen und 50-Ω-Leitungen. Die Antenne muss mit einem Netzwerkanalysator abgestimmt werden |
+
+Der nackte Chip spart ca. 1 $ pro Platine, kostet aber 9 $ mehr Gebühren pro
+Auftrag. Bei 5 Platinen wird es dadurch **teurer**, erst ab ca. 10 Stück gleicht
+sich das aus. Für ein Gerät, das verkauft werden soll, kommt die eigene
+Funkprüfung dazu. Sie lohnt sich erst bei vielen tausend Stück. Deshalb bleibt es beim Modul.
+Das kleinere ESP32-C3-MINI-1 kostet 3,03 $, also nur 0,26 $ weniger, braucht aber ein neues Layout.
+
 ## Akku
 
 * **1S-LiPo 3,7 V mit JST-PH-2,0-Stecker**, Bauform **503040** (≈ 30 × 40 × 5 mm,
