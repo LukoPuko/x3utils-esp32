@@ -272,6 +272,17 @@ SILK = [
 # the PCB down; keep them free when moving parts.
 CASE_POSTS = [(2.5, 3.0), (35.5, 3.0), (36.3, 57.0), (1.0, 48.5)]
 
+# Panel break-off tab positions for KiKit (board coordinates of the arrow tail
+# and the direction it points: 0 = +x, 90 = -y, 180 = -x, 270 = +y). Kept away
+# from the USB-C and switch overhangs and from the SWD header body, so the
+# mouse-bite nubs never sit where the case or a plug needs a clean edge.
+PANEL_TABS = [
+    (1.5, 15.0, 180), (1.5, 45.0, 180),      # left edge, above/below USB-C
+    (36.5, 15.0, 0), (36.5, 45.0, 0),        # right edge, above/below switch
+    (19.0, 1.5, 90),                         # antenna edge, centre
+    (14.5, 58.5, 270),                       # SWD edge, between JST and header
+]
+
 # Extra GND thermal vias (board coordinates): TP4056 exposed pad.
 THERMAL_VIAS = [(6.6 + dx, 45.0 + dy) for dx in (-0.6, 0.6) for dy in (-0.9, 0.9)]
 

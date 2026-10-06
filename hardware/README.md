@@ -152,6 +152,81 @@ Alle Dateien liegen fertig in [`production/`](production/):
 
 ---
 
+## Größere Stückzahlen: 100–200 und 500 Stück
+
+**Wichtig:** JLCs günstige *Economic*-Bestückung nimmt nur **2–50 Stück pro
+Auftrag**. Die *Standard*-Bestückung verlangt mindestens 70 × 70 mm, die
+Platine hat aber nur 38 × 60 mm. Deshalb gibt es einen fertigen **Nutzen
+(Panel) mit 10 Platinen** in [`production/panel/`](production/panel/):
+
+![Panel 5x2](docs/panel-top.png)
+
+* 5 × 2 Platinen auf 202 × 139 mm, 3 mm gefräste Spalte, Abbrechstege mit
+  Mouse-Bites, Randstreifen mit 3 Passermarken und 3 Werkzeugbohrungen.
+* Die Stege sitzen bewusst **nicht** an USB-C, Schalter oder SWD-Stecker,
+  damit nach dem Abbrechen kein Grat ins Gehäuse drückt.
+* Die obere Reihe ist um 180° gedreht, so zeigen alle SWD-Kanten zu den Randstreifen.
+* Bestellmenge in **Panels**: 100 Stück = 10, 200 Stück = 20, 500 Stück = 50
+  Panels. Damit ist alles im Economic-Tarif, 500 ist genau das Maximum.
+* Upload genau wie bei der Einzelplatine, nur mit `x3tuner-panel-gerbers.zip`,
+  `x3tuner-panel-bom.csv` und `x3tuner-panel-cpl.csv`.
+  Option „Panel by JLCPCB" **nicht** wählen, das Panel ist schon fertig.
+
+### Kosten pro Platine (bestückt, ab Werk JLCPCB, Lieferung nach Deutschland)
+
+Schätzung, Oktober 2026, ±20 %. Annahmen:
+- **ESP32-Modul:** 3,63–4,00 $ ab 100 Stück bei LCSC. Die nächste Preisstufe kommt erst ab 650 Stück und spart nur ca. 0,15 $.
+- **Übrige Teile:** ca. 1,20 $, davon allein 0,60 $ der Schalter.
+- **Löten:** 190 Lötstellen × 0,0016 $.
+- **Fixkosten pro Auftrag:** 27,50 $.
+- **Versand:** DHL Express.
+
+| | 100 Stück | 200 Stück | 500 Stück |
+|---|---|---|---|
+| Bauteile | ≈ 5,00 $ | ≈ 5,00 $ | ≈ 4,95 $ |
+| Bestückung (Lötstellen) | 0,30 $ | 0,30 $ | 0,30 $ |
+| Fixkosten anteilig | 0,28 $ | 0,14 $ | 0,06 $ |
+| Leiterplatte (Panels) | ≈ 0,30 $ | ≈ 0,25 $ | ≈ 0,20 $ |
+| Versand + Verzollung | ≈ 0,45 $ | ≈ 0,30 $ | ≈ 0,20 $ |
+| **Summe netto** | **≈ 6,30 $** | **≈ 6,00 $** | **≈ 5,70 $** |
+| **inkl. 19 % Einfuhr-USt.** | **≈ 7,50 $** | **≈ 7,10 $** | **≈ 6,80 $** |
+| **Gesamtbetrag** | **≈ 750 $** | **≈ 1.420 $** | **≈ 3.400 $** |
+
+Über 150 € Warenwert gilt die normale Einfuhr: 19 % Einfuhrumsatzsteuer, für
+Firmen als Vorsteuer erstattbar, plus Verzollungsgebühr des Paketdiensts.
+Für bestückte Leiterplatten fällt in der Regel kein Zoll an. **DDP**-Versand
+wählen, dann ist alles vorab bezahlt.
+
+### Komplettgerät (Platine + Akku + Gehäuse)
+
+| Posten | 100–200 Stück | 500 Stück |
+|---|---|---|
+| Platine bestückt (inkl. USt.) | ≈ 7,10–7,50 $ | ≈ 6,80 $ |
+| Akku 503450 mit JST-PH | ≈ 2–4 $ (Herstellerangebot einholen) | ≈ 2–3 $ |
+| Stiftleiste 1×5 gewinkelt | ≈ 0,05 $ | ≈ 0,03 $ |
+| Gehäuse | selbst gedruckt ≈ 0,30 € Material, aber 1,5–2 h Druckzeit pro Stück | Druckdienst oder Druckfarm, ca. 2–4 $ (Angebot einholen) |
+| **≈ Material pro Gerät** | **≈ 10–12 $** | **≈ 11–13 $** (mit Druckdienst) |
+
+Dazu kommen pro Gerät ca. 5–8 Minuten Handarbeit: Stiftleiste löten, Firmware
+flashen, testen, Akku einlegen, Deckel aufklicken. Ein Spritzguss-Gehäuse
+(Werkzeug ca. 3.000–8.000 €) lohnt sich erst ab einigen tausend Stück.
+
+> [!IMPORTANT]
+> **Wenn du die Geräte verkaufen willst**, brauchst du in Deutschland/EU vorher:
+> - eine CE-Konformitätserklärung nach Funkanlagen-Richtlinie (RED), EMV und RoHS. Die
+>   Zertifikate des ESP32-Moduls helfen, ersetzen sie aber nicht.
+> - eine **WEEE-Registrierung** bei der stiftung ear.
+> - eine Akku-Registrierung nach Batterierecht.
+> - eine Verpackungsregistrierung (LUCID).
+>
+> Lithium-Akkus brauchen beim Versand UN38.3-Unterlagen. Außerdem verliert ein
+> getunter E-Scooter in Deutschland auf öffentlichen Straßen seine
+> Betriebserlaubnis (eKFV) und den Versicherungsschutz. Ein Gerät, das als
+> „Tuning"-Werkzeug beworben wird, kann deshalb rechtliche Risiken bringen.
+> Kläre das vor einem Verkauf ab.
+
+---
+
 ## Gehäuse
 
 Ein passendes, schraubenloses **3D-Druck-Gehäuse** inklusive Akkufach liegt in
@@ -221,7 +296,9 @@ hardware/
 ├── gen/build.sh          alles in einem Rutsch
 ├── gen/make_case.sh      Gehäuse: Positionen aus circuit.py → STL + Bilder (OpenSCAD)
 ├── kicad/                KiCad-7-Projekt (mit KiCad 7 oder neuer öffnen und bearbeiten)
+├── gen/make_panel.py     10er-Nutzen für Serien (KiKit; KIKIT=/pfad/zu/kikit)
 ├── production/           Fertigungsdaten (JLCPCB + herstellerneutrale Stückliste)
+│   └── panel/            Fertigungsdaten für den 10er-Nutzen (100–500 Stück)
 ├── case/                 3D-Druck-Gehäuse (OpenSCAD + STL)
 └── docs/                 Schaltplan-PDF, Bestückungsplan, Renderings
 ```

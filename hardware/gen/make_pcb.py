@@ -328,6 +328,17 @@ def stage_place():
 
     preroute_usb(board, net)
 
+    # KiKit tab annotations (virtual footprints, nothing gets manufactured)
+    for i, (x, y, rot) in enumerate(C.PANEL_TABS):
+        tab = pcbnew.FootprintLoad(os.path.join(KDIR, "kikit.pretty"), "Tab")
+        tab.SetFPIDAsString("kikit:Tab")
+        tab.SetReference("KT%d" % (i + 1))
+        tab.SetPosition(pt(x, y))
+        tab.SetOrientationDegrees(rot)
+        tab.SetAttributes(tab.GetAttributes() | pcbnew.FP_EXCLUDE_FROM_BOM
+                          | pcbnew.FP_EXCLUDE_FROM_POS_FILES | pcbnew.FP_BOARD_ONLY)
+        board.Add(tab)
+
     for text, x, y, size, rot, side in C.SILK:
         silk_text(board, text, x, y, size, rot,
                   pcbnew.F_SilkS if side == "F" else pcbnew.B_SilkS, bold=size >= 1.0)

@@ -14,3 +14,4 @@ hardware/kicad/fp-info-cache
 hardware/kicad/_autosave-*
 hardware/kicad/~*.lck
 __pycache__/
+hardware/kicad/panel/
