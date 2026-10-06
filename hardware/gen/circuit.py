@@ -248,6 +248,10 @@ SILK = [
     ("JLCJLCJLCJLC", 19.0, 26.0, 0.8, 0, "B"),
 ]
 
+# Spots (board coordinates) without components where the case lid presses
+# the PCB down; keep them free when moving parts.
+CASE_POSTS = [(2.5, 3.0), (35.5, 3.0), (36.3, 57.0), (1.0, 48.5)]
+
 # Extra GND thermal vias (board coordinates): TP4056 exposed pad.
 THERMAL_VIAS = [(6.6 + dx, 45.0 + dy) for dx in (-0.6, 0.6) for dy in (-0.9, 0.9)]
 
