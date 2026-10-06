@@ -36,11 +36,12 @@ Ersetzt **ST-LINK, PC und Kabelsalat** – bedient wird alles per Handy-Browser
 | 3,3 V ESP | ME6211 (500 mA LDO), Ein/Aus-Schiebeschalter **MSK12C02** am Enable-Pin | kleiner Ruhestrom, Laden auch im ausgeschalteten Zustand; Schalter ca. 0,05 $ |
 | 3,3 V VCU | **zweiter ME6211, per GPIO10 schaltbar**, mit Spannungsmessung | Firmware schaltet die VCU selbst ein → **automatischer Power-Race** |
 | SWD | 1×5-Stiftleiste 2,54 mm (3V3 · DIO · CLK · RST · GND), 100 Ω Serienwiderstände | Dupont-Kabel wie beim ST-LINK |
-| Bedienung | RESET, BOOT, Status-LED (gelb) | |
+| Bedienung | RESET, BOOT, Status-LED (weiß) | |
 | Messung | Akkuspannung, USB vorhanden, Spannung an der VCU (alle ADC1) | Akkuanzeige in der Web-Oberfläche, Schutz gegen Doppelversorgung |
 
-**Platine:** 38 × 54,5 mm, 2 Lagen, 1,6 mm, alle SMD-Teile auf der Oberseite
-(einseitige Bestückung = günstig). Unten durchgehende Massefläche – dort klebt
+**Platine:** 38 × 54,5 mm, 2 Lagen, 1,6 mm, alle Teile auf der Oberseite
+(einseitige Bestückung = günstig). JLC bestückt **alles**, auch die
+SWD-Stiftleiste – von Hand gelötet wird nichts. Unten durchgehende Massefläche – dort klebt
 der Akku. Antenne am oberen Rand, ohne Kupfer darunter.
 
 ### Pinbelegung ESP32-C3-WROOM-02
@@ -78,7 +79,7 @@ Messeingänge sind ADC1, denn ADC2 funktioniert beim C3 nicht, solange WLAN läu
 | RESET (rechts) | ESP32 neu starten |
 | BOOT (links) | beim Reset halten = Download-Modus (nur bei „verflashter" Firmware nötig) |
 | LED „CHG" rot / grün | lädt / voll (TP4056) |
-| LED „STAT" gelb | kurzes Blitzen alle 2 s = bereit, schnelles Blinken = Vorgang läuft |
+| LED „STAT" weiß | kurzes Blitzen alle 2 s = bereit, schnelles Blinken = Vorgang läuft |
 
 ---
 
@@ -98,31 +99,60 @@ Messeingänge sind ADC1, denn ADC2 funktioniert beim C3 nicht, solange WLAN läu
 
 ## Wo fertigen lassen? (Platine + Bestückung, Lieferung nach Deutschland)
 
-Preisvergleich für die Spar-Version mit ESP32-C3 und MSK12C02, Stand Oktober 2026.
-Gegenüber der ersten S3-Version spart das etwa 3 $ pro Platine. Werte sind **inklusive 19 % MwSt.** und
-günstigstem Versand, Genauigkeit etwa ±25 %. Live-Preise im Warenkorb können
-abweichen, vor allem beim ESP32-Modul, weil Speicherchips 2026 teurer geworden sind.
+### JLCPCB – Live-Preise vom 6. Oktober 2026
+
+Alle Bauteilpreise, Lagerbestände, der Platinenpreis und der Versand stammen
+direkt von jlcpcb.com, die Gebühren aus JLCs Hilfe-Artikeln
+([PCB Assembly Price](https://jlcpcb.com/help/article/pcb-assembly-price),
+[PCB Assembly FAQs](https://jlcpcb.com/help/article/pcb-assembly-faqs)).
+Die Bestückungszeilen zeigt JLC erst nach dem Hochladen von BOM und CPL im
+eingeloggten Warenkorb. Sie sind hier deshalb mit diesen Preisen nachgerechnet,
+inklusive der Mindest- und Ausschussmengen pro Bauteil. JLC bestückt **alle**
+Teile, du lötest nichts selbst.
+
+| Economic-Bestückung, alles bestückt | 2 Stück | 5 Stück |
+|---|---|---|
+| Bauteile | 13,20 $ | 27,59 $ |
+| Einrichtung 8,18 $ + Schablone 1,53 $ | 9,71 $ | 9,71 $ |
+| Extended-Gebühr: 10 Sorten × 3 $ | 30,00 $ | 30,00 $ |
+| Handlöten der Stiftleiste J3 (THT, pro Auftrag) | 3,58 $ | 3,58 $ |
+| Lötstellen (0,0016 $ pro Lötstelle) | 0,61 $ | 1,52 $ |
+| **Bestückung netto** | **57,10 $** | **72,40 $** |
+| Platine (5 Stück, 2 Lagen, HASL) | 4,00 $ | 4,00 $ |
+| Versand „Global Standard Direct Line" (8–13 Tage) | 6,41 $ | 6,41 $ |
+| **Gesamt inkl. 19 % MwSt.** | **≈ 80 $ ≈ 69 €** | **≈ 99 $ ≈ 85 €** |
+
+Damit kostet jede Platine bei 5 Stück ca. 17 €, bei 10 Stück ca. 11 € und bei 50 Stück ca. 6 €.
+Express-Versand (UPS/DHL/FedEx, DDP) kostet 27–32 $ statt 6,41 $.
+
+**Warum Kleinserien so teuer sind:** Die festen Gebühren von ca. 43 $
+pro Auftrag machen bei 2–5 Platinen mehr als die Hälfte aus. Allein 30 $ davon
+ist die Extended-Gebühr. Diese 10 Teile gibt es bei JLC nur als „Extended":
+
+- ESP32-C3-Modul, DW01A, HJ8205, TP4056 und ME6211
+- SRV05-4, USB-C-Buchse, JST-Buchse, Schiebeschalter und Stiftleiste
+
+Am 6.10.2026 habe ich für jedes davon im JLC-Katalog nach einem gebührenfreien
+„Basic"-Ersatz gesucht. Es gibt keinen. Ab 100 Stück fallen diese
+Gebühren kaum noch ins Gewicht, siehe unten.
+
+**In dieser Revision geändert, weil es die Bestellung verteuert oder blockiert hat:**
+- **ESD-Schutz U6:** Die ProTek SRV05-4 (C85364) war nicht lieferbar. Es gab nur
+  Vorbestellung mit 30 Stück Mindestmenge. Jetzt ist die baugleiche
+  TECH-PUBLIC SRV05-4 (C558418) drin: 219.000 Stück auf Lager, 0,03 $.
+- **Status-LED D4:** Statt der gelben LED (Extended, +3 $) ist eine weiße
+  KT-0603W (C2290, Basic, ohne Gebühr) verbaut, mit Vorwiderstand 100 Ω.
+- **Stiftleiste J3:** wird jetzt von JLC mitbestückt
+  (C32713264, gewinkelt 1×5, 2,54 mm).
+
+**Andere Anbieter** (frühere Schätzungen, nicht live geprüft):
 
 | Anbieter | 5 Stück | 10 Stück | 50 Stück | Anmerkung |
 |---|---|---|---|---|
-| **JLCPCB** (Economic PCBA) | **≈ 15 $/Stk.** | **≈ 10 $/Stk.** | **≈ 6 $/Stk.** | **Empfehlung.** Niedrigste Fixkosten, alle Teile ab Lager (LCSC), MwSt. wird an der Kasse erhoben |
-| NextPCB („Rev0") | ≈ 12 $ | ≈ 9 $ | ≈ 5 $ | Nur die **erste** Bestellung (Bestückung gratis bis 500 $, Aktion bis 31.12.2026). Teilepreise und Versand nicht geprüft |
-| PCBWay | ≈ 16 $ | ≈ 11 $ | ≈ 7–8 $ | 29 $ Einrichtung (Aktion), kauft Teile bei Digi-Key/Mouser |
-| ALLPCB | ≈ 16 $ | ≈ 11 $ | – | 35 $ Einrichtung bis 10 Stück |
+| **JLCPCB** (Economic, live) | **≈ 17 €/Stk.** | **≈ 11 €/Stk.** | **≈ 6 €/Stk.** | **Empfehlung**, alle Teile ab Lager |
+| NextPCB („Rev0") | ≈ 12 $ | ≈ 9 $ | ≈ 5 $ | nur die **erste** Bestellung (Bestückung gratis bis 500 $, Aktion bis 31.12.2026) – lohnt sich für den ersten Prototyp, mit `x3tuner-bom-generic.csv` anfragen |
+| PCBWay | ≈ 16 $ | ≈ 11 $ | ≈ 7–8 $ | 29 $ Einrichtung (Aktion) |
 | AISLER (Deutschland) | ≈ 50 € | ≈ 30 € | ≈ 11 € | kein Zoll, aber 7,50 € je Bauteilsorte |
-
-**Fazit:** Bei **JLCPCB** bestellen. Lohnt sich ein einmaliger Versuch, hol
-zusätzlich ein Angebot bei **NextPCB** (Erstbestellungs-Aktion) mit
-`x3tuner-bom-generic.csv` ein. Ein Akku (ca. 1,50–3 $) und die Stiftleiste (ca. 0,10 $)
-kommen jeweils noch dazu.
-
-So setzen sich die JLC-Kosten zusammen:
-- **Einmal pro Auftrag:** 8 $ Einrichtung und 1,50 $ Schablone.
-- **Pro „Extended"-Bauteilsorte:** 3 $. Laut einer Quelle seit 12/2025 nur noch 1,50 $, das zeigt dir der Warenkorb.
-- **Diese 6 Extended-Sorten sind nötig:** ESP32-Modul, DW01A, ME6211, USB-C, JST-Buchse, Schalter.
-- **Für keine davon** gibt es bei JLC derzeit einen gebührenfreien Ersatz. Das wurde gegen die aktuelle Basic/Preferred-Liste geprüft.
-- **Der Rest ist schon gebührenfrei („Basic"/„Preferred"):** TP4056, HJ8205, SRV05-4, AO3401A, B5819W, Taster, LEDs und alle Widerstände und Kondensatoren.
-- **Größter Kostenblock:** das Funkmodul. Der ESP32-C3-WROOM-02-N4 kostet ca. 2,45 $ ab 100 Stück, der ESP32-S3 mit 8 MB PSRAM ca. 3,63–4,00 $.
 
 > [!NOTE]
 > **Zoll seit 1. Juli 2026:** Auf Pakete bis 150 € kommt in der EU eine Zollgebühr von 3 € pro Warenposition.
@@ -143,13 +173,16 @@ Alle Dateien liegen fertig in [`production/`](production/):
 
 1. Auf jlcpcb.com `x3tuner-gerbers.zip` hochladen. Standard-Einstellungen
    reichen: **2 Lagen, 1,6 mm, HASL bleifrei**, beliebige Lötstoppfarbe.
-2. **PCB Assembly** aktivieren → **Economic**, **Top Side**, Menge 5 oder 10.
+2. **PCB Assembly** aktivieren → **Economic**, **Top Side**, Menge 2, 5 oder 10.
+   Keine Zusatzoptionen anhaken (Reinigung, Fotobestätigung, Backen usw. kosten extra).
 3. BOM und CPL hochladen. Alle Teile sollten automatisch zugeordnet werden.
 4. In der Bauteil-Vorschau **jede Drehung prüfen**, besonders die ICs
-   (U2, U3, U4, U5, U6, Q1, Q2), die LEDs und J2. Das CPL enthält schon die
+   (U2, U3, U4, U5, U6, Q1, Q2), die LEDs, J2 und die Stiftleiste J3
+   (die Pins müssen über die Platinenkante hinausragen). Das CPL enthält schon die
    üblichen JLC-Korrekturen für SOT-23 und SOIC – kontrolliere sie trotzdem in der Vorschau.
-5. **Nicht bestückt** werden (bewusst, spart Geld): die **Stiftleiste J3**
-   (normale gewinkelte 1×5-Stiftleiste 2,54 mm, selbst einlöten) und der Akku.
+5. Alle Teile stehen in der BOM. JLC lötet auch die Stiftleiste J3 ein
+   (THT, 3,58 $ Handlöt-Pauschale pro Auftrag). Nur der Akku wird später
+   eingesteckt.
 6. An der Kasse den **SMT-Gutschein** einlösen: Neukunden bekommen 10 $, außerdem
    gibt es jeden Monat 9 $, was die Einrichtungsgebühr deckt. Pro Auftrag gilt
    ein Gutschein.
@@ -178,26 +211,27 @@ Platine hat aber nur 38 × 54,5 mm. Deshalb gibt es einen fertigen **Nutzen
 
 ### Kosten pro Platine (bestückt, ab Werk JLCPCB, Lieferung nach Deutschland)
 
-Schätzung, Oktober 2026, ±20 %. Annahmen:
-- **ESP32-C3-WROOM-02-N4:** 2,45 $ ab 100 Stück bei LCSC.
-- **Übrige Teile:** ca. 0,65 $, der Schalter MSK12C02 kostet davon nur ca. 0,05 $.
+Bauteilpreise live von jlcpcb.com (6.10.2026, Staffelpreise je Menge), Gebühren
+laut JLC-Hilfe, Platine und Versand geschätzt (±20 %). Annahmen:
+- **ESP32-C3-WROOM-02-N4:** 2,42 $ ab 100 Stück (JLC-Lager: 11.466 Stück).
+- **Übrige Teile:** ca. 1,20 $, inklusive Stiftleiste.
 - **Löten:** ca. 190 Lötstellen × 0,0016 $.
-- **Fixkosten pro Auftrag:** 27,50 $.
-- **Versand:** DHL Express.
+- **Fixkosten pro Auftrag:** 43,29 $. Das sind Einrichtung, Schablone, 10 Extended-Sorten und die Handlöt-Pauschale für J3.
+- **Versand:** DHL Express (DDP).
 
 | | 100 Stück | 200 Stück | 500 Stück |
 |---|---|---|---|
-| Bauteile | ≈ 3,10 $ | ≈ 3,10 $ | ≈ 3,08 $ |
+| Bauteile | ≈ 3,83 $ | ≈ 3,65 $ | ≈ 3,60 $ |
 | Bestückung (Lötstellen) | 0,30 $ | 0,30 $ | 0,30 $ |
-| Fixkosten anteilig | 0,28 $ | 0,14 $ | 0,06 $ |
+| Fixkosten anteilig | 0,43 $ | 0,22 $ | 0,09 $ |
 | Leiterplatte (Panels) | ≈ 0,28 $ | ≈ 0,23 $ | ≈ 0,18 $ |
 | Versand + Verzollung | ≈ 0,42 $ | ≈ 0,28 $ | ≈ 0,18 $ |
-| **Summe netto** | **≈ 4,40 $** | **≈ 4,05 $** | **≈ 3,80 $** |
-| **inkl. 19 % Einfuhr-USt.** | **≈ 5,20 $** | **≈ 4,80 $** | **≈ 4,50 $** |
-| **Gesamtbetrag** | **≈ 520 $** | **≈ 965 $** | **≈ 2.260 $** |
+| **Summe netto** | **≈ 5,25 $** | **≈ 4,70 $** | **≈ 4,35 $** |
+| **inkl. 19 % Einfuhr-USt.** | **≈ 6,25 $ ≈ 5,40 €** | **≈ 5,55 $ ≈ 4,80 €** | **≈ 5,20 $ ≈ 4,45 €** |
+| **Gesamtbetrag** | **≈ 625 $** | **≈ 1.115 $** | **≈ 2.590 $** |
 
-Zum Vergleich die erste Version mit ESP32-S3 (8 MB PSRAM) und C&K-Schalter:
-≈ 7,50 / 7,10 / 6,80 $ pro Platine. Die Spar-Version kostet also rund **30 % weniger**.
+Zum Vergleich die erste Version mit ESP32-S3 (8 MB PSRAM) und C&K-Schalter, damals
+geschätzt: ≈ 7,50 / 7,10 / 6,80 $ pro Platine. Die Spar-Version kostet also rund **20 % weniger**.
 
 Über 150 € Warenwert gilt die normale Einfuhr: 19 % Einfuhrumsatzsteuer, für
 Firmen als Vorsteuer erstattbar, plus Verzollungsgebühr des Paketdiensts.
@@ -208,14 +242,13 @@ wählen, dann ist alles vorab bezahlt.
 
 | Posten | 100–200 Stück | 500 Stück |
 |---|---|---|
-| Platine bestückt (inkl. USt.) | ≈ 4,80–5,20 $ | ≈ 4,50 $ |
+| Platine bestückt, inkl. Stiftleiste (inkl. USt.) | ≈ 5,55–6,25 $ | ≈ 5,20 $ |
 | Akku 503040 (≈ 600 mAh) mit JST-PH | ≈ 1,50–2,50 $ (Herstellerangebot einholen) | ≈ 1,50–2 $ |
-| Stiftleiste 1×5 gewinkelt | ≈ 0,05 $ | ≈ 0,03 $ |
 | Gehäuse | selbst gedruckt ≈ 0,30 € Material, aber 1,5–2 h Druckzeit pro Stück | Druckdienst oder Druckfarm, ca. 2–4 $ (Angebot einholen) |
-| **≈ Material pro Gerät** | **≈ 6,50–8 $** | **≈ 8–10,50 $** mit Druckdienst, selbst gedruckt ≈ 6,50 $ |
+| **≈ Material pro Gerät** | **≈ 7,50–9 $** | **≈ 8,50–11 $** mit Druckdienst, selbst gedruckt ≈ 7 $ |
 
-Dazu kommen pro Gerät ca. 5–8 Minuten Handarbeit: Stiftleiste löten, Firmware
-flashen, testen, Akku einlegen, Deckel aufklicken. Ein Spritzguss-Gehäuse
+Gelötet wird nichts. Pro Gerät kommen ca. 3–5 Minuten Montage dazu: Firmware
+flashen, testen, Akku einstecken, Deckel aufklicken. Ein Spritzguss-Gehäuse
 (Werkzeug ca. 3.000–8.000 €) lohnt sich erst ab einigen tausend Stück.
 
 > [!IMPORTANT]
@@ -251,9 +284,13 @@ Druck- und Montageanleitung stehen in [`case/README.md`](case/README.md).
 
 Ehrliche Liste, was in dieser Umgebung **nicht** direkt verifiziert werden konnte:
 
-* **LCSC-Nummern** wurden über Sekundärquellen geprüft (JLC-Teile-Scrapes,
-  KiCad/EasyEDA-Bibliotheken), nicht direkt auf lcsc.com. JLC zeigt beim
-  Upload an, falls eine Nummer nicht passt oder nicht lieferbar ist.
+* **LCSC-Nummern:** Alle 27 Positionen wurden am 6.10.2026 live auf jlcpcb.com
+  geprüft: Typ, Lagerbestand, Preis, Basic/Extended. Alle sind ab Lager
+  lieferbar. Kontrolliere die Lagerbestände trotzdem kurz vor der Bestellung.
+  Knapp ist vor allem das ESP32-Modul mit 11.466 Stück.
+* **Stiftleiste J3 (C32713264):** Das ist eine Standard-Stiftleiste (2,54 mm, gewinkelt). Ihre Maße
+  habe ich nicht im Datenblatt gegengeprüft. In der JLC-Vorschau sollten die Pins
+  über die Platinenkante zeigen, sonst die Drehung im CPL um 180° ändern.
 * **HJ8205 (Q2) Pinbelegung** (1 = S1, 2 = D, 3 = S2, 4 = G2, 5 = D, 6 = G1)
   stammt aus zwei übereinstimmenden EasyEDA-Symbolen. Kurz mit dem Datenblatt
   abgleichen. Pin-kompatible Alternative: FS8205A im SOT-23-6 (C908265).

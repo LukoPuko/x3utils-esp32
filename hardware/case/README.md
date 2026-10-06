@@ -75,14 +75,16 @@ Unterschale greift in den Deckel.
 
 ## Zusammenbau
 
-1. Stiftleiste J3 an die Platine löten. Die kurzen Pin-Enden auf der Unterseite
-   auf ca. 1 mm kürzen.
-2. Akku mit doppelseitigem Klebeband ins Fach legen, die Kabelseite zum SWD-Ende.
+Die Platine kommt fertig bestückt von JLC, inklusive Stiftleiste J3. Gelötet
+wird nichts. Die Pin-Enden von J3 auf der Unterseite liegen neben dem Akkufach
+und müssen nicht gekürzt werden.
+
+1. Akku mit doppelseitigem Klebeband ins Fach legen, die Kabelseite zum SWD-Ende.
    Das Kabel läuft am Boden zum SWD-Ende und dort hinter der Platinenkante nach
    oben zum Stecker J2 (siehe Ansicht von unten).
-3. Akku einstecken (**Polarität prüfen!**). Dann die Platine einlegen: Bauteile
+2. Akku einstecken (**Polarität prüfen!**). Dann die Platine einlegen: Bauteile
    nach oben, Stiftleiste zum Schlitz.
-4. Deckel aufsetzen und an allen vier Rastnasen einrasten lassen. Zum Öffnen die
+3. Deckel aufsetzen und an allen vier Rastnasen einrasten lassen. Zum Öffnen die
    Längsseiten leicht auseinanderziehen.
 
 ## Anpassen

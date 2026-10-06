@@ -122,7 +122,8 @@ def cpl():
             pkg = row["Package"]
             for pat, add in ROT_FIX:
                 if re.search(pat, pkg):
-                    rot = (rot + add) % 360
+                    rot += add
+            rot %= 360
             w.writerow([ref, "%.4fmm" % float(row["PosX"]), "%.4fmm" % float(row["PosY"]),
                         "Top", "%g" % rot])
             n += 1

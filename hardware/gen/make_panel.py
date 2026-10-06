@@ -97,7 +97,8 @@ def fab():
             rot = float(row["Rot"])
             for pat, add in ROT_FIX:
                 if re.search(pat, row["Package"]):
-                    rot = (rot + add) % 360
+                    rot += add
+            rot %= 360
             w.writerow([ref, "%.4fmm" % float(row["PosX"]), "%.4fmm" % float(row["PosY"]),
                         "Top", "%g" % rot])
             groups.setdefault((p.value, p.fp.split(":")[1], p.lcsc), []).append(ref)

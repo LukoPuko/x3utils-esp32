@@ -121,9 +121,11 @@ PARTS = [
          {"1": "RXD0"}, (310, 168), (32.6, 8.1, 0), "UART RX (Notfall-Flash)", bom=False),
     Part("TP3", "Connector:TestPoint", "GND", "TestPoint:TestPoint_Pad_1.0x1.0mm", "",
          {"1": "GND"}, (320, 168), (34.8, 8.1, 0), "GND", bom=False),
-    R("R20", "1k", "LED", "LED_A", (300, 190), (31.0, 10.4, 0), "Status-LED"),
-    LED("D4", "yellow", "LED_A", "GND", (300, 205), (33.6, 10.4, 180), "C89811",
-        "Status-LED gelb"),
+    # White is the only JLC "Basic" 0603 LED besides red (no extended-part fee);
+    # 100 R gives ~4 mA at its ~2.9 V forward voltage.
+    R("R20", "100", "LED", "LED_A", (300, 190), (31.0, 10.4, 0), "Status-LED"),
+    LED("D4", "white", "LED_A", "GND", (300, 205), (33.6, 10.4, 180), "C2290",
+        "Status-LED weiß"),
 
     # ── USB-C (Laden + native USB, kein USB-UART-Chip nötig) ──────────────────
     Part("J1", "Connector:USB_C_Receptacle_USB2.0_16P", "USB-C",
@@ -140,9 +142,9 @@ PARTS = [
     # from the battery, and a VBUS-tied clamp would back-feed VBUS (and half
     # turn off the power-path FET Q1) through it.
     Part("U6", "Power_Protection:SRV05-4", "SRV05-4",
-         "Package_TO_SOT_SMD:SOT-23-6", "C85364",
+         "Package_TO_SOT_SMD:SOT-23-6", "C558418",
          {"1": "USB_DN", "3": "USB_DP", "2": "GND", "5": "+3V3", "4": None, "6": None},
-         (85, 90), (24.0, 26.9, 180), "USB ESD-Schutz", mfr="ProTek"),
+         (85, 90), (24.0, 26.9, 180), "USB ESD-Schutz", mfr="TECH PUBLIC"),
     R("R18", "100k", "VBUS", "VBUS_SENSE", (103, 112), (24.6, 22.4, 0), "USB-Erkennung"),
     R("R19", "100k", "VBUS_SENSE", "GND", (113, 112), (24.6, 23.5, 0), "USB-Erkennung"),
 
@@ -214,10 +216,10 @@ PARTS = [
     R("R12", "100", "SWCLK", "SWCLK_T", (362, 60), (26.52, 45.1, 90), "Serien-R SWCLK"),
     R("R13", "100", "SWDIO", "SWDIO_T", (374, 60), (29.06, 45.1, 90), "Serien-R SWDIO"),
     Part("J3", "Connector_Generic:Conn_01x05", "SWD-ZIEL",
-         "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal", "",
+         "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal", "C32713264",
          {"1": "VTGT", "2": "SWDIO_T", "3": "SWCLK_T", "4": "NRST_T", "5": "GND"},
          (395, 95), (31.6, BOARD_H - 4.04, 270),
-         "Stiftleiste 1x5 gewinkelt zum Scooter (3V3 DIO CLK RST GND)"),
+         "Stiftleiste 1x5 gewinkelt zum Scooter (3V3 DIO CLK RST GND)", mfr="hanxia"),
 ]
 
 # Manufacturer part numbers for assemblers that don't use LCSC numbers
@@ -229,7 +231,7 @@ MPN = {
     "C351410": ("PUOLOP", "DW01A"),
     "C20069150": ("HJ", "HJ8205 (alt. FS8205A SOT-23-6, same pinout)"),
     "C82942": ("Microne", "ME6211C33M5G-N"),
-    "C85364": ("ProTek", "SRV05-4-P-T7"),
+    "C558418": ("TECH PUBLIC", "SRV05-4 (alt. ProTek SRV05-4-P-T7, same pinout)"),
     "C15127": ("AOS", "AO3401A"),
     "C8598": ("CJ", "B5819W SL"),
     "C165948": ("HRO", "TYPE-C-31-M-12"),
@@ -237,7 +239,8 @@ MPN = {
     "C431540": ("SHOU HAN", "MSK12C02"),
     "C318884": ("XKB", "TS-1187A-B-A-B"),
     "C2286": ("KENTO", "KT-0603R"),
-    "C89811": ("NationStar", "NCD0603Y2"),
+    "C2290": ("KENTO", "KT-0603W"),
+    "C32713264": ("hanxia", "HX PZ2.54-1x5P WZ (1x5 2.54 mm, gewinkelt, THT)"),
 }
 
 # Silkscreen labels: (text, x, y, size, rotation, layer "F"/"B")
