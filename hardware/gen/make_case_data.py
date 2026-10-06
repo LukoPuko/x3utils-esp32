@@ -38,13 +38,16 @@ def main():
         "PCB_T = 1.6;",
         # ESP32 module body (18 x 25.5) and its antenna end
         "U1_XY = [%s, %s];" % (C.U1_X, Y(C.U1_Y)),
-        "ANTENNA_Y = %s;  // above this Y: antenna, keep metal away" % Y(C.U1_Y - 6.75),
-        # USB-C on the left edge (KiCad rot 270: receptacle opening faces -X)
+        "ANTENNA_Y = %s;  // above this Y: antenna, keep metal away" % Y(C.ANTENNA_Y),
+        "MODULE_BOTTOM_Y = %s;" % Y(C.MODULE_BOTTOM_Y),
+        # USB-C: KiCad rot 270 opens to -X (left edge), rot 90 to +X (right edge)
         "USB_Y = %s;" % Y(j1[1]),
-        "USB_FRONT_X = %s;" % round(j1[0] - 3.65, 3),
-        # slide switch on the right edge; lever reaches past the board edge
+        "USB_RIGHT = %s;" % ("true" if j1[2] % 360 == 90 else "false"),
+        "USB_FRONT_X = %s;" % round(j1[0] + (3.65 if j1[2] % 360 == 90 else -3.65), 3),
+        # slide switch: lever reaches past the board edge (MSK12C02 rot 270 -> left)
         "SW1_Y = %s;" % Y(sw1[1]),
-        "SW1_LEVER_X = %s;" % round(sw1[0] + 4.25, 3),
+        "SW1_RIGHT = %s;" % ("true" if sw1[0] > C.BOARD_W / 2 else "false"),
+        "SW1_LEVER_X = %s;" % round(sw1[0] + (3.35 if sw1[0] > C.BOARD_W / 2 else -3.35), 3),
         # JST-PH battery socket (opening faces the port end, -Y)
         "J2_XY = [%s, %s];" % (j2[0], Y(j2[1])),
         "J2_FRONT_Y = %s;" % Y(j2[1] + 4.4),

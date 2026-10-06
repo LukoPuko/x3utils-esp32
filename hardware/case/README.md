@@ -1,7 +1,7 @@
 # X3-Tuner Gehäuse (3D-Druck)
 
 Zweiteiliges Rast-Gehäuse für die X3-Tuner-Platine **plus Akku**, ohne
-Schrauben. Außenmaß **ca. 42 × 71 × 17 mm**.
+Schrauben. Außenmaß **ca. 42 × 65 × 17 mm**.
 
 | Zusammengebaut | Explosionsansicht |
 |---|---|
@@ -19,10 +19,11 @@ Schrauben. Außenmaß **ca. 42 × 71 × 17 mm**.
 
 ## Details
 
-* **Akku:** Fach für einen **503450-LiPo** (34 × 50 × 5 mm, ca. 1000 mAh) unter
-  der Platine. Für andere Akkus `BAT = [Breite, Länge, Dicke]` in der `.scad`
-  ändern und neu exportieren.
-* **USB-C** links, **Ein/Aus-Schieber** rechts mit Griffmulde.
+* **Akku:** Fach für einen **503040-LiPo** (30 × 40 × 5 mm, ca. 600 mAh) unter
+  der Platine. Bis 34 × 43 mm Grundfläche passt alles. Für andere Akkus `BAT = [Breite, Länge, Dicke]` in
+  der `.scad` ändern und neu exportieren.
+* **USB-C** rechts, **Ein/Aus-Schieber** links mit Griffmulde. Den Hebel des
+  MSK12C02 schiebst du mit dem Fingernagel.
 * **SWD-Port** an der Stirnseite: Ein 5-poliges Dupont-Buchsengehäuse wird
   durch den Schlitz auf die Stiftleiste gesteckt. Die Pinbelegung (3V3, DIO, CLK, RST, GND) ist auf
   dem Deckel über jedem Pin eingraviert.

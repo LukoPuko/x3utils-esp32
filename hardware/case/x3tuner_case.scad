@@ -14,8 +14,9 @@ include <board_data.scad>
 part = "assembly";
 
 /* [Battery] */
-// Pocket for a 503450 LiPo (34 x 50 x 5 mm nominal, ~1000 mAh) incl. margin
-BAT = [35.5, 52.5, 5.6];
+// Pocket for a 503040 LiPo (30 x 40 x 5 mm nominal, ~600 mAh) incl. margin.
+// Anything up to [34, 43] mm footprint fits under the 54.5 mm board.
+BAT = [31.5, 42.0, 5.6];
 
 /* [Shell] */
 WALL = 1.6;       // side walls
@@ -66,14 +67,20 @@ module rbox(c, s, r) {  // centred rounded box
 
 // ── port cut-outs (through both halves) ─────────────────────────────────────
 module ports() {
-  // USB-C, left wall
-  translate([OUT[0] - 1, USB_Y, Z_PCB_TOP + 1.63]) rotate([0, 90, 0]) {
-    rbox([0, 0, (IN[0] - OUT[0] + 1.2) / 2], [3.9, 9.7, IN[0] - OUT[0] + 1.2], 1.5);
-    rbox([0, 0, 0.8], [5.4, 11.2, 1.6], 2.2);  // soft recess on the outside
+  // USB-C on whichever side the board puts it
+  usb_in = USB_RIGHT ? IN[2] : IN[0];
+  usb_out = USB_RIGHT ? OUT[2] : OUT[0];
+  translate([usb_out, USB_Y, Z_PCB_TOP + 1.63]) rotate([0, USB_RIGHT ? -90 : 90, 0]) {
+    rbox([0, 0, (WALL + 1.2) / 2 - 1], [3.9, 9.7, WALL + 1.2 + 1], 1.5);
+    rbox([0, 0, 0.1], [5.4, 11.2, 1.4], 2.2);  // soft recess on the outside
   }
-  // slide switch lever, right wall, plus a finger scoop
-  translate([IN[2] - 0.5, SW1_Y - 3.6, Z_PCB_TOP - 0.4]) cube([WALL + 2, 7.2, 3.0]);
-  translate([OUT[2] + 2.6, SW1_Y, Z_PCB_TOP + 1.1]) scale([1, 1.6, 1]) sphere(r = 3.4);
+  // slide switch lever + finger scoop
+  sw_in = SW1_RIGHT ? IN[2] : IN[0];
+  sw_out = SW1_RIGHT ? OUT[2] : OUT[0];
+  dir = SW1_RIGHT ? 1 : -1;
+  translate([min(sw_in, sw_out) - (SW1_RIGHT ? 0.5 : 1), SW1_Y - 3.6, Z_PCB_TOP - 0.4])
+    cube([WALL + 1.5, 7.2, 3.0]);
+  translate([sw_out + dir * 2.4, SW1_Y, Z_PCB_TOP + 1.1]) scale([1, 1.6, 1]) sphere(r = 3.4);
   // SWD port, end wall: a 5-pin Dupont housing slides over the header pins
   pins_c = J3_PIN1_X - 2 * J3_PITCH;
   translate([pins_c, OUT[1] - 1, Z_PCB_TOP + 1.27]) rotate([-90, 0, 0]) {
@@ -198,15 +205,17 @@ module lid() {
 module pcb_model() {
   color("#1f6f43") slab([0, 0, BOARD_W, BOARD_H], BOARD_R, Z_PCB_BOT, Z_PCB_TOP);
   t = Z_PCB_TOP;
-  color("silver") translate([U1_XY[0] - 9, U1_XY[1] - 12.6, t]) cube([18, ANTENNA_Y - (U1_XY[1] - 12.6), 3.1]);
-  color("#222") translate([U1_XY[0] - 9, ANTENNA_Y, t]) cube([18, 6.2, 0.8]);
-  color("silver") translate([USB_FRONT_X, USB_Y - 4.47, t]) cube([7.3, 8.94, 3.26]);
+  color("silver") translate([U1_XY[0] - 9, MODULE_BOTTOM_Y, t]) cube([18, ANTENNA_Y - MODULE_BOTTOM_Y, 3.2]);
+  color("#222") translate([U1_XY[0] - 9, ANTENNA_Y, t]) cube([18, 6.0, 0.8]);
+  color("silver") translate([USB_RIGHT ? USB_FRONT_X - 7.3 : USB_FRONT_X, USB_Y - 4.47, t]) cube([7.3, 8.94, 3.26]);
   color("white") translate([J2_XY[0] - 3.95, J2_FRONT_Y, t]) cube([7.9, 7.6, 4.9]);
   color("#ddd") translate([J2_XY[0] - 3.0, J2_FRONT_Y - 5.0, t + 0.6]) cube([6.0, 5.0, 3.4]);  // plug
   color("#111") translate([J3_PIN1_X - 4 * J3_PITCH - 1.27, J3_ROW_Y - 4.04, t]) cube([12.7, 2.54, 2.5]);
   for (i = [0:4]) color("gold") translate([J3_PIN1_X - i * J3_PITCH - 0.32, J3_TIP_Y, t + 0.95]) cube([0.64, J3_ROW_Y - J3_TIP_Y, 0.64]);
-  color("#333") translate([BOARD_W - 4.5, SW1_Y - 4.5, t]) cube([4.5, 9, 1.6]);
-  color("#333") translate([BOARD_W, SW1_Y - 0.75, t + 0.3]) cube([SW1_LEVER_X - BOARD_W, 1.5, 1.0]);
+  sw_body_x = SW1_RIGHT ? BOARD_W - 3.2 : 0.35;
+  color("#333") translate([sw_body_x, SW1_Y - 3.35, t]) cube([2.85, 6.7, 1.4]);
+  color("#333") translate([SW1_RIGHT ? BOARD_W - 0.1 : SW1_LEVER_X, SW1_Y - 0.75, t + 0.2])
+    cube([abs(SW1_LEVER_X - (SW1_RIGHT ? BOARD_W - 0.1 : 0.45)), 1.5, 1.0]);
   for (c = [SW2_XY, SW3_XY]) color("#444") translate([c[0] - 2.55, c[1] - 2.55, t]) cube([5.1, 5.1, BTN_H]);
   color("red") translate([LED_CHG_XY[0] - 0.8, LED_CHG_XY[1] + 0.2, t]) cube([1.6, 0.8, 0.6]);
   color("lime") translate([LED_CHG_XY[0] - 1.0, LED_CHG_XY[1] - 1.3, t]) cube([2.0, 1.25, 0.6]);

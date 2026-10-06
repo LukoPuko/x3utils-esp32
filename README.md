@@ -59,12 +59,16 @@ Connection modes: **Default SWD**, **Under-reset (nRST)**, and **Power-race**
 ### Option A — the X3-Tuner PCB (all-in-one)
 
 [`hardware/`](hardware/) contains a ready-to-order board built only for this
-job (documentation in German): ESP32-S3-WROOM-1-**N16R8** (16 MB flash, 8 MB
-PSRAM), USB-C with the S3's native USB (no USB-UART chip), a 1S LiPo with
-TP4056 charger and DW01A protection, and a **GPIO-switched 3.3 V supply for the
-VCU** that lets the firmware run *Power-race* by itself. It is a 38 × 60 mm
-two-layer board with all parts on one side, plus Gerber, BOM and CPL files for
-JLCPCB assembly. Build the firmware with `pio run -e x3tuner -t upload`.
+job (documentation in German):
+- **MCU:** ESP32-C3-WROOM-02 module, chosen as the cost-optimised option.
+- **USB:** USB-C wired to the C3's native USB, so no USB-UART chip is needed.
+- **Battery:** 1S LiPo with a TP4056 charger and DW01A protection.
+- **VCU supply:** a GPIO-switched 3.3 V supply, so the firmware can run *Power-race* by itself.
+- **Board:** 38 × 54.5 mm, two layers, all parts on one side.
+- **Manufacturing files:** Gerber, BOM and CPL for JLCPCB assembly, plus a 10-up panel for volume orders.
+- **Case:** a 3D-printable enclosure.
+
+Build the firmware with `pio run -e x3tuner -t upload`.
 
 ![X3-Tuner PCB](hardware/docs/pcb-top.png)
 
@@ -101,7 +105,7 @@ pio run -e esp32dev -t upload
 
 # or an S3 / C3 board
 pio run -e esp32-s3 -t upload
-# the X3-Tuner PCB from hardware/ (ESP32-S3 N16R8, native USB)
+# the X3-Tuner PCB from hardware/ (ESP32-C3, native USB)
 pio run -e x3tuner -t upload
 pio run -e esp32-c3 -t upload
 

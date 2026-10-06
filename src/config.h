@@ -18,12 +18,12 @@
 // Use 3.3 V logic only. Power the VCU from ONE source at a time (main/bench
 // power OR the ESP32 3V3 pin) exactly as the upstream x3utils wiki warns.
 #if defined(X3_BOARD_TUNER)
-// X3-Tuner PCB (hardware/): the SWD trio sits on the module's bottom edge,
-// straight above the target header.
-static const int PIN_SWCLK_DEFAULT = 12;
-static const int PIN_SWDIO_DEFAULT = 13;
-static const int PIN_NRST_DEFAULT = 11;
-static const int PIN_LED_DEFAULT = 21;
+// X3-Tuner PCB (hardware/, ESP32-C3-WROOM-02): the SWD trio is on the
+// module's left pads, closest to the target header.
+static const int PIN_SWCLK_DEFAULT = 5;
+static const int PIN_SWDIO_DEFAULT = 6;
+static const int PIN_NRST_DEFAULT = 7;
+static const int PIN_LED_DEFAULT = 0;
 #elif defined(X3_BOARD_C3)
 static const int PIN_SWCLK_DEFAULT = 4;
 static const int PIN_SWDIO_DEFAULT = 5;
@@ -45,10 +45,10 @@ static const int PIN_LED_DEFAULT = 2;
 // Only the X3-Tuner PCB has these; on dev boards they are -1 and the matching
 // features (battery gauge, switchable target supply) simply report "absent".
 #if defined(X3_BOARD_TUNER)
-static const int PIN_TGT_EN = 14;      // high = target LDO (3.3 V to the VCU) on
-static const int PIN_VTGT_SENSE = 2;   // ADC1: VTGT through a 1:2 divider
-static const int PIN_VBAT_SENSE = 9;   // ADC1: battery through a 1:2 divider
-static const int PIN_VBUS_SENSE = 8;   // VBUS through a 1:2 divider (USB present)
+static const int PIN_TGT_EN = 10;      // high = target LDO (3.3 V to the VCU) on
+static const int PIN_VTGT_SENSE = 3;   // ADC1: VTGT through a 1:2 divider
+static const int PIN_VBAT_SENSE = 4;   // ADC1: battery through a 1:2 divider
+static const int PIN_VBUS_SENSE = 1;   // ADC1: VBUS through a 1:2 divider (USB present)
 #else
 static const int PIN_TGT_EN = -1;
 static const int PIN_VTGT_SENSE = -1;

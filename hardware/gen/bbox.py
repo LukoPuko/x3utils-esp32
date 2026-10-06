@@ -12,6 +12,7 @@ for fp in b.GetFootprints():
     x0 = pcbnew.ToMM(bb.GetX()) - OX; y0 = pcbnew.ToMM(bb.GetY()) - OY
     x1 = x0 + pcbnew.ToMM(bb.GetWidth()); y1 = y0 + pcbnew.ToMM(bb.GetHeight())
     boxes[fp.GetReference()] = (x0, y0, x1, y1)
+boxes = {k: v for k, v in boxes.items() if not k.startswith("KT")}  # virtual tab marks
 for r, (x0, y0, x1, y1) in sorted(boxes.items()):
     if len(sys.argv) > 1 and r not in sys.argv[1:]: continue
     print("%-4s x %6.2f..%6.2f  y %6.2f..%6.2f" % (r, x0, x1, y0, y1))

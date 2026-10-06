@@ -1,7 +1,7 @@
 # X3-Tuner – eigene Platine für x3utils-esp32
 
 Ein **All-in-one-Gerät** für die AT32F415-VCU der X3-Scooter-Familie (ZT3 Pro,
-Max G3, F3 / F3 Pro): ESP32-S3 mit viel RAM, eigener Akku mit Lade- und
+Max G3, F3 / F3 Pro): ESP32-C3 (Spar-Version), eigener Akku mit Lade- und
 Schutzschaltung, schaltbare 3,3-V-Versorgung für die VCU und ein SWD-Stecker.
 Ersetzt **ST-LINK, PC und Kabelsalat** – bedient wird alles per Handy-Browser
 über WLAN (Firmware: dieses Repository, Environment `x3tuner`).
@@ -16,7 +16,7 @@ Ersetzt **ST-LINK, PC und Kabelsalat** – bedient wird alles per Handy-Browser
 [3D-Druck-Gehäuse](case/)
 
 > [!IMPORTANT]
-> **Status: Design fertig, noch nicht gefertigt.** Die Platine besteht den
+> **Status: Design fertig (Rev. 1.1, Spar-Version mit ESP32-C3), noch nicht gefertigt.** Die Platine besteht den
 > KiCad-DRC (0 Fehler, 0 offene Verbindungen) und der Schaltplan wird
 > automatisch gegen die Netzliste geprüft – ein gebauter Prototyp existiert
 > aber noch nicht. Bitte zuerst **2–5 Stück** bestellen und testen. Was du vor
@@ -28,34 +28,35 @@ Ersetzt **ST-LINK, PC und Kabelsalat** – bedient wird alles per Handy-Browser
 
 | Block | Lösung | Warum |
 |---|---|---|
-| MCU | **ESP32-S3-WROOM-1-N16R8**: 16 MB Flash, **8 MB PSRAM** | viel RAM, WLAN, natives USB |
-| USB | USB-C direkt an GPIO19/20 (natives USB des S3) | kein CH340/CP2102 nötig → günstiger |
+| MCU | **ESP32-C3-WROOM-02-N4**: 4 MB Flash, 400 KB RAM, WLAN + BLE | ca. 1,20–1,55 $ günstiger als der S3; die Firmware braucht nur 128 KB Puffer |
+| USB | USB-C direkt an GPIO18/19 (natives USB des C3) | kein CH340/CP2102 nötig → günstiger |
 | Laden | **TP4056**, ca. 360 mA (R4 = 3,3 kΩ), LEDs rot = lädt, grün = voll | Standard, sehr billig |
 | Akku-Schutz (BMS) | **DW01A + 8205-Dual-MOSFET** | Schutz vor Über- und Tiefentladung, Überstrom und Kurzschluss |
 | Power-Path | P-MOSFET AO3401A + Schottky B5819W | mit USB läuft das Gerät aus USB, der Akku wird nur geladen |
-| 3,3 V ESP | ME6211 (500 mA LDO), Ein/Aus-Schiebeschalter am Enable-Pin | kleiner Ruhestrom, Laden auch im ausgeschalteten Zustand |
-| 3,3 V VCU | **zweiter ME6211, per GPIO14 schaltbar**, mit Spannungsmessung | Firmware schaltet die VCU selbst ein → **automatischer Power-Race** |
+| 3,3 V ESP | ME6211 (500 mA LDO), Ein/Aus-Schiebeschalter **MSK12C02** am Enable-Pin | kleiner Ruhestrom, Laden auch im ausgeschalteten Zustand; Schalter ca. 0,05 $ |
+| 3,3 V VCU | **zweiter ME6211, per GPIO10 schaltbar**, mit Spannungsmessung | Firmware schaltet die VCU selbst ein → **automatischer Power-Race** |
 | SWD | 1×5-Stiftleiste 2,54 mm (3V3 · DIO · CLK · RST · GND), 100 Ω Serienwiderstände | Dupont-Kabel wie beim ST-LINK |
 | Bedienung | RESET, BOOT, Status-LED (gelb) | |
 | Messung | Akkuspannung, USB vorhanden, Spannung an der VCU (alle ADC1) | Akkuanzeige in der Web-Oberfläche, Schutz gegen Doppelversorgung |
 
-**Platine:** 38 × 60 mm, 2 Lagen, 1,6 mm, alle SMD-Teile auf der Oberseite
+**Platine:** 38 × 54,5 mm, 2 Lagen, 1,6 mm, alle SMD-Teile auf der Oberseite
 (einseitige Bestückung = günstig). Unten durchgehende Massefläche – dort klebt
 der Akku. Antenne am oberen Rand, ohne Kupfer darunter.
 
-### Pinbelegung ESP32-S3
+### Pinbelegung ESP32-C3-WROOM-02
 
 | GPIO | Funktion | | GPIO | Funktion |
 |---|---|---|---|---|
-| IO11 | nRST (zur VCU, über 100 Ω) | | IO2 | VTGT_SENSE (Spannung an der VCU, ½) |
-| IO12 | SWCLK (über 100 Ω) | | IO8 | VBUS_SENSE (USB steckt, ½) |
-| IO13 | SWDIO (über 100 Ω) | | IO9 | VBAT_SENSE (Akkuspannung, ½) |
-| IO14 | TGT_EN (VCU-Versorgung ein) | | IO21 | Status-LED |
-| IO0 | BOOT-Taste | | IO19/20 | USB D−/D+ |
-| EN | RESET-Taste | | IO43/44 | UART0 (Testpads TP1/TP2) |
+| IO5 | SWCLK (über 100 Ω) | | IO3 | VTGT_SENSE (Spannung an der VCU, ½) |
+| IO6 | SWDIO (über 100 Ω) | | IO1 | VBUS_SENSE (USB steckt, ½) |
+| IO7 | nRST (zur VCU, über 100 Ω) | | IO4 | VBAT_SENSE (Akkuspannung, ½) |
+| IO10 | TGT_EN (VCU-Versorgung ein) | | IO0 | Status-LED |
+| IO9 | BOOT-Taste | | IO18/19 | USB D−/D+ |
+| EN | RESET-Taste | | IO20/21 | UART0 (Testpads TP2/TP1) |
+| IO2, IO8 | Strapping-Pins, je 10 kΩ nach 3,3 V | | | |
 
-Die SWD-Pins liegen an der Unterkante des Moduls, direkt über dem Stecker.
-Keine Strapping-, Flash- (26–32) oder PSRAM-Pins (33–37) werden benutzt.
+Die SWD-Pins liegen links am Modul, auf der Seite des Steckers. Alle
+Messeingänge sind ADC1, denn ADC2 funktioniert beim C3 nicht, solange WLAN läuft.
 
 ### SWD-Stecker J3 (von links nach rechts, Oberseite)
 
@@ -73,9 +74,9 @@ Keine Strapping-, Flash- (26–32) oder PSRAM-Pins (33–37) werden benutzt.
 
 | Teil | Funktion |
 |---|---|
-| Schiebeschalter (rechts, „PWR") | Gerät ein/aus. Geladen wird auch im ausgeschalteten Zustand. |
-| RESET (links) | ESP32 neu starten |
-| BOOT (rechts) | beim Einstecken/Reset halten = Download-Modus (nur bei „verflashter" Firmware nötig) |
+| Schiebeschalter (links, „PWR") | Gerät ein/aus. Geladen wird auch im ausgeschalteten Zustand. |
+| RESET (rechts) | ESP32 neu starten |
+| BOOT (links) | beim Reset halten = Download-Modus (nur bei „verflashter" Firmware nötig) |
 | LED „CHG" rot / grün | lädt / voll (TP4056) |
 | LED „STAT" gelb | kurzes Blitzen alle 2 s = bereit, schnelles Blinken = Vorgang läuft |
 
@@ -83,8 +84,10 @@ Keine Strapping-, Flash- (26–32) oder PSRAM-Pins (33–37) werden benutzt.
 
 ## Akku
 
-* **1S-LiPo 3,7 V mit JST-PH-2,0-Stecker**, z. B. Bauform **503450** (≈ 34 × 50 mm,
-  ~1000 mAh) – passt auf die Rückseite. Laufzeit ca. 5–8 h WLAN-Betrieb.
+* **1S-LiPo 3,7 V mit JST-PH-2,0-Stecker**, Bauform **503040** (≈ 30 × 40 × 5 mm,
+  ~600 mAh). Er passt unter die Platine und ins Gehäuse. Laufzeit ca. 4–6 h WLAN-Betrieb
+  (der C3 braucht weniger Strom als der S3). Größer als 34 × 43 mm passt nicht
+  mehr unter die 54,5-mm-Platine.
 * Ladestrom ist mit R4 = 3,3 kΩ auf ~360 mA eingestellt → Akku **≥ 400 mAh**.
   Für kleinere Akkus R4 vergrößern (4,7 kΩ ≈ 255 mA, 10 kΩ ≈ 120 mA).
 * ⚠️ **Polarität prüfen!** Bei JST-PH-Akkus ist die Belegung nicht einheitlich.
@@ -95,21 +98,22 @@ Keine Strapping-, Flash- (26–32) oder PSRAM-Pins (33–37) werden benutzt.
 
 ## Wo fertigen lassen? (Platine + Bestückung, Lieferung nach Deutschland)
 
-Preisvergleich, Stand Oktober 2026. Werte sind **inklusive 19 % MwSt.** und
+Preisvergleich für die Spar-Version mit ESP32-C3 und MSK12C02, Stand Oktober 2026.
+Gegenüber der ersten S3-Version spart das etwa 3 $ pro Platine. Werte sind **inklusive 19 % MwSt.** und
 günstigstem Versand, Genauigkeit etwa ±25 %. Live-Preise im Warenkorb können
 abweichen, vor allem beim ESP32-Modul, weil Speicherchips 2026 teurer geworden sind.
 
 | Anbieter | 5 Stück | 10 Stück | 50 Stück | Anmerkung |
 |---|---|---|---|---|
-| **JLCPCB** (Economic PCBA) | **≈ 18 $/Stk.** | **≈ 13 $/Stk.** | **≈ 9 $/Stk.** | **Empfehlung.** Niedrigste Fixkosten, alle Teile ab Lager (LCSC), MwSt. wird an der Kasse erhoben |
-| NextPCB („Rev0") | ≈ 15 $ | ≈ 12 $ | ≈ 8 $ | Nur die **erste** Bestellung (Bestückung gratis bis 500 $, Aktion bis 31.12.2026). Teilepreise und Versand nicht geprüft |
-| PCBWay | ≈ 19 $ | ≈ 14 $ | ≈ 10–11 $ | 29 $ Einrichtung (Aktion), kauft Teile bei Digi-Key/Mouser |
-| ALLPCB | ≈ 19 $ | ≈ 14 $ | – | 35 $ Einrichtung bis 10 Stück |
-| AISLER (Deutschland) | ≈ 53 € | ≈ 33 € | ≈ 14 € | kein Zoll, aber 7,50 € je Bauteilsorte |
+| **JLCPCB** (Economic PCBA) | **≈ 15 $/Stk.** | **≈ 10 $/Stk.** | **≈ 6 $/Stk.** | **Empfehlung.** Niedrigste Fixkosten, alle Teile ab Lager (LCSC), MwSt. wird an der Kasse erhoben |
+| NextPCB („Rev0") | ≈ 12 $ | ≈ 9 $ | ≈ 5 $ | Nur die **erste** Bestellung (Bestückung gratis bis 500 $, Aktion bis 31.12.2026). Teilepreise und Versand nicht geprüft |
+| PCBWay | ≈ 16 $ | ≈ 11 $ | ≈ 7–8 $ | 29 $ Einrichtung (Aktion), kauft Teile bei Digi-Key/Mouser |
+| ALLPCB | ≈ 16 $ | ≈ 11 $ | – | 35 $ Einrichtung bis 10 Stück |
+| AISLER (Deutschland) | ≈ 50 € | ≈ 30 € | ≈ 11 € | kein Zoll, aber 7,50 € je Bauteilsorte |
 
 **Fazit:** Bei **JLCPCB** bestellen. Lohnt sich ein einmaliger Versuch, hol
 zusätzlich ein Angebot bei **NextPCB** (Erstbestellungs-Aktion) mit
-`x3tuner-bom-generic.csv` ein. Ein Akku (ca. 2–4 $) und die Stiftleiste (ca. 0,10 $)
+`x3tuner-bom-generic.csv` ein. Ein Akku (ca. 1,50–3 $) und die Stiftleiste (ca. 0,10 $)
 kommen jeweils noch dazu.
 
 So setzen sich die JLC-Kosten zusammen:
@@ -118,7 +122,7 @@ So setzen sich die JLC-Kosten zusammen:
 - **Diese 6 Extended-Sorten sind nötig:** ESP32-Modul, DW01A, ME6211, USB-C, JST-Buchse, Schalter.
 - **Für keine davon** gibt es bei JLC derzeit einen gebührenfreien Ersatz. Das wurde gegen die aktuelle Basic/Preferred-Liste geprüft.
 - **Der Rest ist schon gebührenfrei („Basic"/„Preferred"):** TP4056, HJ8205, SRV05-4, AO3401A, B5819W, Taster, LEDs und alle Widerstände und Kondensatoren.
-- **Größter Kostenblock:** das ESP32-S3-Modul mit ca. 3,40–5,20 $. Die N16R8-Variante kostet praktisch dasselbe wie N8R8 oder N8R2, deshalb ist sie bestückt.
+- **Größter Kostenblock:** das Funkmodul. Der ESP32-C3-WROOM-02-N4 kostet ca. 2,45 $ ab 100 Stück, der ESP32-S3 mit 8 MB PSRAM ca. 3,63–4,00 $.
 
 > [!NOTE]
 > **Zoll seit 1. Juli 2026:** Auf Pakete bis 150 € kommt in der EU eine Zollgebühr von 3 € pro Warenposition.
@@ -156,12 +160,12 @@ Alle Dateien liegen fertig in [`production/`](production/):
 
 **Wichtig:** JLCs günstige *Economic*-Bestückung nimmt nur **2–50 Stück pro
 Auftrag**. Die *Standard*-Bestückung verlangt mindestens 70 × 70 mm, die
-Platine hat aber nur 38 × 60 mm. Deshalb gibt es einen fertigen **Nutzen
+Platine hat aber nur 38 × 54,5 mm. Deshalb gibt es einen fertigen **Nutzen
 (Panel) mit 10 Platinen** in [`production/panel/`](production/panel/):
 
 ![Panel 5x2](docs/panel-top.png)
 
-* 5 × 2 Platinen auf 202 × 139 mm, 3 mm gefräste Spalte, Abbrechstege mit
+* 5 × 2 Platinen auf 202 × 128 mm, 3 mm gefräste Spalte, Abbrechstege mit
   Mouse-Bites, Randstreifen mit 3 Passermarken und 3 Werkzeugbohrungen.
 * Die Stege sitzen bewusst **nicht** an USB-C, Schalter oder SWD-Stecker,
   damit nach dem Abbrechen kein Grat ins Gehäuse drückt.
@@ -175,22 +179,25 @@ Platine hat aber nur 38 × 60 mm. Deshalb gibt es einen fertigen **Nutzen
 ### Kosten pro Platine (bestückt, ab Werk JLCPCB, Lieferung nach Deutschland)
 
 Schätzung, Oktober 2026, ±20 %. Annahmen:
-- **ESP32-Modul:** 3,63–4,00 $ ab 100 Stück bei LCSC. Die nächste Preisstufe kommt erst ab 650 Stück und spart nur ca. 0,15 $.
-- **Übrige Teile:** ca. 1,20 $, davon allein 0,60 $ der Schalter.
-- **Löten:** 190 Lötstellen × 0,0016 $.
+- **ESP32-C3-WROOM-02-N4:** 2,45 $ ab 100 Stück bei LCSC.
+- **Übrige Teile:** ca. 0,65 $, der Schalter MSK12C02 kostet davon nur ca. 0,05 $.
+- **Löten:** ca. 190 Lötstellen × 0,0016 $.
 - **Fixkosten pro Auftrag:** 27,50 $.
 - **Versand:** DHL Express.
 
 | | 100 Stück | 200 Stück | 500 Stück |
 |---|---|---|---|
-| Bauteile | ≈ 5,00 $ | ≈ 5,00 $ | ≈ 4,95 $ |
+| Bauteile | ≈ 3,10 $ | ≈ 3,10 $ | ≈ 3,08 $ |
 | Bestückung (Lötstellen) | 0,30 $ | 0,30 $ | 0,30 $ |
 | Fixkosten anteilig | 0,28 $ | 0,14 $ | 0,06 $ |
-| Leiterplatte (Panels) | ≈ 0,30 $ | ≈ 0,25 $ | ≈ 0,20 $ |
-| Versand + Verzollung | ≈ 0,45 $ | ≈ 0,30 $ | ≈ 0,20 $ |
-| **Summe netto** | **≈ 6,30 $** | **≈ 6,00 $** | **≈ 5,70 $** |
-| **inkl. 19 % Einfuhr-USt.** | **≈ 7,50 $** | **≈ 7,10 $** | **≈ 6,80 $** |
-| **Gesamtbetrag** | **≈ 750 $** | **≈ 1.420 $** | **≈ 3.400 $** |
+| Leiterplatte (Panels) | ≈ 0,28 $ | ≈ 0,23 $ | ≈ 0,18 $ |
+| Versand + Verzollung | ≈ 0,42 $ | ≈ 0,28 $ | ≈ 0,18 $ |
+| **Summe netto** | **≈ 4,40 $** | **≈ 4,05 $** | **≈ 3,80 $** |
+| **inkl. 19 % Einfuhr-USt.** | **≈ 5,20 $** | **≈ 4,80 $** | **≈ 4,50 $** |
+| **Gesamtbetrag** | **≈ 520 $** | **≈ 965 $** | **≈ 2.260 $** |
+
+Zum Vergleich die erste Version mit ESP32-S3 (8 MB PSRAM) und C&K-Schalter:
+≈ 7,50 / 7,10 / 6,80 $ pro Platine. Die Spar-Version kostet also rund **30 % weniger**.
 
 Über 150 € Warenwert gilt die normale Einfuhr: 19 % Einfuhrumsatzsteuer, für
 Firmen als Vorsteuer erstattbar, plus Verzollungsgebühr des Paketdiensts.
@@ -201,11 +208,11 @@ wählen, dann ist alles vorab bezahlt.
 
 | Posten | 100–200 Stück | 500 Stück |
 |---|---|---|
-| Platine bestückt (inkl. USt.) | ≈ 7,10–7,50 $ | ≈ 6,80 $ |
-| Akku 503450 mit JST-PH | ≈ 2–4 $ (Herstellerangebot einholen) | ≈ 2–3 $ |
+| Platine bestückt (inkl. USt.) | ≈ 4,80–5,20 $ | ≈ 4,50 $ |
+| Akku 503040 (≈ 600 mAh) mit JST-PH | ≈ 1,50–2,50 $ (Herstellerangebot einholen) | ≈ 1,50–2 $ |
 | Stiftleiste 1×5 gewinkelt | ≈ 0,05 $ | ≈ 0,03 $ |
 | Gehäuse | selbst gedruckt ≈ 0,30 € Material, aber 1,5–2 h Druckzeit pro Stück | Druckdienst oder Druckfarm, ca. 2–4 $ (Angebot einholen) |
-| **≈ Material pro Gerät** | **≈ 10–12 $** | **≈ 11–13 $** (mit Druckdienst) |
+| **≈ Material pro Gerät** | **≈ 6,50–8 $** | **≈ 8–10,50 $** mit Druckdienst, selbst gedruckt ≈ 6,50 $ |
 
 Dazu kommen pro Gerät ca. 5–8 Minuten Handarbeit: Stiftleiste löten, Firmware
 flashen, testen, Akku einlegen, Deckel aufklicken. Ein Spritzguss-Gehäuse
@@ -230,7 +237,7 @@ flashen, testen, Akku einlegen, Deckel aufklicken. Ein Spritzguss-Gehäuse
 ## Gehäuse
 
 Ein passendes, schraubenloses **3D-Druck-Gehäuse** inklusive Akkufach liegt in
-[`case/`](case/): ca. **42 × 71 × 17 mm**, mit Federtasten, LED-Fenstern und
+[`case/`](case/): ca. **42 × 65 × 17 mm**, mit Federtasten, LED-Fenstern und
 gravierter SWD-Belegung. Druck- und Montageanleitung stehen in [`case/README.md`](case/README.md).
 
 | | |
@@ -249,6 +256,17 @@ Ehrliche Liste, was in dieser Umgebung **nicht** direkt verifiziert werden konnt
 * **HJ8205 (Q2) Pinbelegung** (1 = S1, 2 = D, 3 = S2, 4 = G2, 5 = D, 6 = G1)
   stammt aus zwei übereinstimmenden EasyEDA-Symbolen. Kurz mit dem Datenblatt
   abgleichen. Pin-kompatible Alternative: FS8205A im SOT-23-6 (C908265).
+* **ESP32-C3-WROOM-02 Pinbelegung:**
+  - 1 3V3, 2 EN, 3–8 IO4–IO9, 9 GND
+  - 10 IO10, 11 RXD, 12 TXD, 13 IO18, 14 IO19
+  - 15 IO3, 16 IO2, 17 IO1, 18 IO0, 19 EPAD/GND
+
+  Die Belegung stammt aus dem Espressif-Datenblatt, wurde hier aber nicht noch einmal gegengelesen.
+  Der Footprint kommt aus der KiCad-Bibliothek. Kurz mit dem Datenblatt abgleichen.
+* **Schiebeschalter MSK12C02 (C431540):** Den Land-Pattern habe ich nach dem
+  EasyEDA-Footprint gezeichnet, den JLC selbst für C431540 verwendet. Ein Datenblatt war nicht erreichbar.
+  Prüfe in der JLC-Vorschau, ob der Schalter auf den Pads sitzt. Der Hebel steht nur
+  ca. 1 mm über den Platinenrand hinaus, im Gehäuse bedienst du ihn mit dem Fingernagel in der Griffmulde.
 * **Drehungen im CPL** – siehe Schritt 4 oben.
 * **Schiebeschalter**: welche Stellung „EIN" ist, hängt von der Einbaurichtung
   ab. Einfach ausprobieren; es ist nur mit „PWR" beschriftet.
@@ -265,8 +283,8 @@ Ehrliche Liste, was in dieser Umgebung **nicht** direkt verifiziert werden konnt
    ```bash
    pio run -e x3tuner -t upload
    ```
-   Beim allerersten Mal ggf. **BOOT gedrückt halten und RESET drücken**, dann
-   wird der ESP32-S3 als USB-Gerät für den Upload erkannt.
+   Wird kein Port gefunden: **BOOT gedrückt halten und RESET drücken**, dann
+   meldet sich der ESP32-C3 als USB-Gerät für den Upload.
 3. Mit dem WLAN **`x3utils-esp32`** (Passwort `x3utils123`) verbinden und
    **http://192.168.4.1/** öffnen. Die Karte „X3-Tuner" zeigt Akku, USB und die
    Spannung an der VCU.

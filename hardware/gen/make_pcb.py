@@ -239,19 +239,25 @@ def preroute_usb(board, net):
     autorouter). D+ (A6/B6) joins on top in a loop around the A7 via; D- (A7/B7)
     joins on the bottom layer between two vias."""
     j = next(p for p in C.PARTS if p.ref == "J1")
-    jx, jy = j.pcb[0], j.pcb[1]
-    e = jx + 4.77                      # rear end of the signal pads
-    yB7, yA6, yA7, yB6 = jy - 0.75, jy - 0.25, jy + 0.25, jy + 0.75
+    jx, jy, jrot = j.pcb
+    # Geometry below is written for the socket opening to the left (rot 270);
+    # rot 90 (opening to the right) is the same pattern rotated 180 degrees.
+    s = 1 if jrot % 360 == 270 else -1
+
+    def P(dx, dy):
+        return (jx + s * dx, jy + s * dy)
+
+    e, yB7, yA6, yA7, yB6 = 4.77, -0.75, -0.25, 0.25, 0.75
     dn, dp = net("USB_DN"), net("USB_DP")
     w = 0.2
     # D+ loop: A6 -> right, down, back left -> B6
-    _track(board, dp, pcbnew.F_Cu, [(e, yA6), (e + 1.48, yA6), (e + 1.78, yA6 + 0.3),
-                                     (e + 1.78, yB6), (e + 1.48, yB6 + 0.3),
-                                     (e + 0.48, yB6 + 0.3), (e + 0.18, yB6), (e, yB6)], w)
-    va7 = (e + 0.88, yA7 + 0.15)       # inside the D+ loop
-    vb7 = (e + 2.48, yB7 + 0.3)        # right of the loop
-    _track(board, dn, pcbnew.F_Cu, [(e, yA7), va7], w)
-    _track(board, dn, pcbnew.F_Cu, [(e, yB7), (e + 2.18, yB7), vb7], w)
+    _track(board, dp, pcbnew.F_Cu, [P(e, yA6), P(e + 1.48, yA6), P(e + 1.78, yA6 + 0.3),
+                                     P(e + 1.78, yB6), P(e + 1.48, yB6 + 0.3),
+                                     P(e + 0.48, yB6 + 0.3), P(e + 0.18, yB6), P(e, yB6)], w)
+    va7 = P(e + 0.88, yA7 + 0.15)      # inside the D+ loop
+    vb7 = P(e + 2.48, yB7 + 0.3)       # beyond the loop
+    _track(board, dn, pcbnew.F_Cu, [P(e, yA7), va7], w)
+    _track(board, dn, pcbnew.F_Cu, [P(e, yB7), P(e + 2.18, yB7), vb7], w)
     _track(board, dn, pcbnew.B_Cu, [va7, vb7], w)
     for v in (va7, vb7):
         via = pcbnew.PCB_VIA(board)
@@ -352,7 +358,7 @@ def stage_place():
     # Antenna keep-out across the whole board width above the module's
     # antenna base (module footprint carries its own, this one makes it
     # explicit for the router and for the pours).
-    add_keepout(board, -1, -1, C.BOARD_W + 1, C.U1_Y - 6.75, "ANTENNA_KEEPOUT")
+    add_keepout(board, -1, -1, C.BOARD_W + 1, C.ANTENNA_Y, "ANTENNA_KEEPOUT")
 
     pcbnew.SaveBoard(PCB, board)
     print("placed", len(C.PARTS), "parts,", len(nets), "nets ->", PCB)
@@ -379,7 +385,7 @@ def dsn_rect(layer, x0, y0, x1, y1):
 
 
 # Areas the router must not use (board coordinates, mm).
-EPAD = (C.U1_X - 1.5, C.U1_Y + 2.46)        # module EPAD centre
+EPAD = C.EPAD_XY                            # module EPAD centre
 
 
 def router_keepouts():
@@ -392,7 +398,7 @@ def router_keepouts():
         for cx, cy in ((0, 0), (W, 0), (0, H), (W, H)):
             k.append((L, cx - 1.3, cy - 1.3, cx + 1.3, cy + 1.3))
     # no top-layer tracks between the module pads (under the module body)
-    k.append(("F.Cu", C.U1_X - 7.8, C.U1_Y - 6.75, C.U1_X + 7.8, C.U1_Y + 11.55))
+    k.append(("F.Cu", C.U1_X - 7.8, C.ANTENNA_Y, C.U1_X + 7.8, C.MODULE_BOTTOM_Y - 0.3))
     # keep the bottom layer under the EPAD / charger pad free for GND vias
     k.append(("B.Cu", EPAD[0] - 2.3, EPAD[1] - 2.3, EPAD[0] + 2.3, EPAD[1] + 2.3))
     xs = [v[0] for v in C.THERMAL_VIAS]
@@ -441,8 +447,8 @@ def _free(board, net, x, y, r, obstacles):
 def add_gnd_vias(board, net):
     """EPAD thermal vias + a stitching grid tying both GND pours together."""
     epad = 0
-    for dx in (-0.9, 0.9):
-        for dy in (-0.9, 0.9):
+    for dx in (-C.EPAD_VIA, C.EPAD_VIA):
+        for dy in (-C.EPAD_VIA, C.EPAD_VIA):
             _new_via(board, net, EPAD[0] + dx, EPAD[1] + dy)
             epad += 1
     for x, y in C.THERMAL_VIAS:
@@ -471,7 +477,7 @@ def add_gnd_vias(board, net):
     placed = 0
     W, H = C.BOARD_W, C.BOARD_H
     step = 2.5
-    y = C.U1_Y - 6.75 + 1.2
+    y = C.ANTENNA_Y + 1.2
     while y < H - 1.2:
         x = 1.2
         while x < W - 1.2:
