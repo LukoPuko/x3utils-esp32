@@ -1,0 +1,28 @@
+Designator,Qty,Value,Package,Manufacturer,MPN,Description
+C1,1,22uF,C_0805_2012Metric,,22uF,"MLCC X5R/X7R, >= 10 V"
+"C2,C6,C11,C12",4,100nF,C_0402_1005Metric,,100nF,"MLCC X5R/X7R, >= 10 V"
+"C3,C9",2,1uF,C_0402_1005Metric,,1uF,"MLCC X5R/X7R, >= 10 V"
+"C4,C5,C7,C8,C10",5,10uF,C_0603_1608Metric,,10uF,"MLCC X5R/X7R, >= 10 V"
+D1,1,B5819W,D_SOD-123,CJ,B5819W SL,Power-Path USB → System
+D2,1,red,LED_0603_1608Metric,KENTO,KT-0603R,LED rot = lädt
+D3,1,green,LED_0805_2012Metric,,green,LED grün = voll
+D4,1,white,LED_0603_1608Metric,KENTO,KT-0603W,Status-LED weiß
+J1,1,USB-C,USB_C_Receptacle_HRO_TYPE-C-31-M-12,HRO,TYPE-C-31-M-12,USB-C Buchse 16 Pin
+J2,1,AKKU,JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,JST,S2B-PH-SM4-TB(LF)(SN),LiPo 1S Anschluss JST-PH 2.0
+J3,1,SWD-ZIEL,PinHeader_1x05_P2.54mm_Horizontal,hanxia,"HX PZ2.54-1x5P WZ (1x5 2.54 mm, gewinkelt, THT)",Stiftleiste 1x5 gewinkelt zum Scooter (3V3 DIO CLK RST GND)
+Q1,1,AO3401A,SOT-23,AOS,AO3401A,Power-Path Akku → System (P-MOSFET)
+Q2,1,HJ8205,SOT-23-6,HJ,"HJ8205 (alt. FS8205A SOT-23-6, same pinout)",Dual N-MOSFET Akku-Schutz
+"R1,R2",2,5.1k,R_0402_1005Metric,,5.1k,"Widerstand 1 %, Dickschicht"
+"R3,R21,R22",3,10k,R_0402_1005Metric,,10k,"Widerstand 1 %, Dickschicht"
+R4,1,3.3k,R_0402_1005Metric,,3.3k,"Widerstand 1 %, Dickschicht"
+"R5,R6,R9",3,1k,R_0402_1005Metric,,1k,"Widerstand 1 %, Dickschicht"
+"R7,R10,R14,R15,R16,R17,R18,R19",8,100k,R_0402_1005Metric,,100k,"Widerstand 1 %, Dickschicht"
+"R8,R11,R12,R13,R20",5,100,R_0402_1005Metric,,100,"Widerstand 1 %, Dickschicht"
+SW1,1,EIN/AUS,SW_SPDT_MSK12C02,SHOU HAN,MSK12C02,Schiebeschalter Ein/Aus
+SW2,1,RESET,SW_Push_1P1T_XKB_TS-1187A,XKB,TS-1187A-B-A-B,Taster RESET
+SW3,1,BOOT,SW_Push_1P1T_XKB_TS-1187A,XKB,TS-1187A-B-A-B,Taster BOOT / Funktion
+U1,1,ESP32-C3-WROOM-02-N4,ESP32-C3-WROOM-02_JLC,Espressif,ESP32-C3-WROOM-02-N4,"ESP32-C3, 4 MB Flash, 400 KB SRAM, WiFi + BLE"
+U2,1,TP4056,SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.3mm,TOPPOWER,TP4056-42-ESOP8,"Li-Ion Lader 1S, ~360 mA"
+U3,1,DW01A,SOT-23-6,PUOLOP,DW01A,Akku-Schutz IC
+"U4,U5",2,ME6211C33M5G-N,SOT-23-5,Microne,ME6211C33M5G-N,"LDO 3,3 V ESP32 (500 mA)"
+U6,1,SRV05-4,SOT-23-6,TECH PUBLIC,"SRV05-4 (alt. ProTek SRV05-4-P-T7, same pinout)",USB ESD-Schutz

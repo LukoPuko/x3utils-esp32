@@ -145,12 +145,46 @@ Gebühren kaum noch ins Gewicht, siehe unten.
 - **Stiftleiste J3:** wird jetzt von JLC mitbestückt
   (C32713264, gewinkelt 1×5, 2,54 mm).
 
+### Am günstigsten für die erste Bestellung: NextPCB „Rev 0"
+
+NextPCB bestückt die **erste Bestellung kostenlos** (bis 500 $), und die
+Platine kostet beim ersten Auftrag 0,10 $. Bezahlt werden nur Bauteile und
+Versand. Stand 6.10.2026, live auf
+[nextpcb.com/rev0-pcba](https://www.nextpcb.com/rev0-pcba) geprüft. Die Bedingungen:
+
+- 5 oder 10 Stück, nur eine Bestellung pro Kunde, grüne Lötmaske, FR4.
+- Platine mindestens **50 × 50 mm**. Deshalb gibt es eine eigene Variante mit
+  zwei abbrechbaren Randstreifen links und rechts (52 × 54,6 mm), siehe
+  [`production/nextpcb/`](production/nextpcb/). Die Streifen werden nach der
+  Lieferung abgebrochen, wie beim 10er-Nutzen.
+- Es gehen nur Bauteile, die bei HQ Online (dem NextPCB-Bauteilshop) auf Lager sind.
+  Am 6.10.2026 waren alle Teile vorrätig, das ESP32-Modul z. B. mit 3.771 Stück zu 3,42 $.
+
+| NextPCB „Rev 0", 5 Stück, alles bestückt | |
+|---|---|
+| ESP32-C3-Modul, 5 × 3,42 $ | 17,11 $ |
+| übrige Hauptteile inkl. Mindestmengen | 5,53 $ |
+| Widerstände, Kondensatoren, LEDs (geschätzt) | ≈ 3,50 $ |
+| Bestückung, Einrichtung | 0,00 $ |
+| Platine | 0,10 $ |
+| Versand nach Deutschland (erst im Konto sichtbar, geschätzt) | ≈ 10–20 $ |
+| **Gesamt inkl. 19 % MwSt.** | **≈ 37–47 €** |
+
+Hochladen: `x3tuner-nextpcb-gerbers.zip`, `x3tuner-nextpcb-bom.csv` (mit
+Hersteller-Teilenummern) und `x3tuner-nextpcb-cpl.csv`. Die Drehungen im CPL folgen dem
+KiCad-Standard, ohne JLC-Korrekturen. Prüfe sie trotzdem in der NextPCB-Vorschau.
+
+**Unter 35 € für 5 fertige Platinen geht es nicht.** Allein die 5 ESP32-Module
+kosten ca. 17 € und der Versand 10–20 €. Wer nur die Firmware
+testen will, nimmt ein ESP32-C3-SuperMini mit bereits eingelöteten Stiftleisten
+(Firmware-Umgebung `esp32-c3`), 5 Dupont-Kabel und eine Powerbank – ohne Löten,
+für ca. 5–8 €.
+
 **Andere Anbieter** (frühere Schätzungen, nicht live geprüft):
 
 | Anbieter | 5 Stück | 10 Stück | 50 Stück | Anmerkung |
 |---|---|---|---|---|
 | **JLCPCB** (Economic, live) | **≈ 17 €/Stk.** | **≈ 11 €/Stk.** | **≈ 6 €/Stk.** | **Empfehlung**, alle Teile ab Lager |
-| NextPCB („Rev0") | ≈ 12 $ | ≈ 9 $ | ≈ 5 $ | nur die **erste** Bestellung (Bestückung gratis bis 500 $, Aktion bis 31.12.2026) – lohnt sich für den ersten Prototyp, mit `x3tuner-bom-generic.csv` anfragen |
 | PCBWay | ≈ 16 $ | ≈ 11 $ | ≈ 7–8 $ | 29 $ Einrichtung (Aktion) |
 | AISLER (Deutschland) | ≈ 50 € | ≈ 30 € | ≈ 11 € | kein Zoll, aber 7,50 € je Bauteilsorte |
 
@@ -353,8 +387,10 @@ hardware/
 ├── gen/make_case.sh      Gehäuse: Positionen aus circuit.py → STL, Renderings, Maßblatt (OpenSCAD)
 ├── kicad/                KiCad-7-Projekt (mit KiCad 7 oder neuer öffnen und bearbeiten)
 ├── gen/make_panel.py     10er-Nutzen für Serien (KiKit; KIKIT=/pfad/zu/kikit)
+├── gen/make_nextpcb.py   Einzelplatine mit Randstreifen für NextPCB „Rev 0" (KiKit)
 ├── production/           Fertigungsdaten (JLCPCB + herstellerneutrale Stückliste)
-│   └── panel/            Fertigungsdaten für den 10er-Nutzen (100–500 Stück)
+│   ├── panel/            Fertigungsdaten für den 10er-Nutzen (100–500 Stück)
+│   └── nextpcb/          Fertigungsdaten für NextPCB „Rev 0" (erste Bestellung, 5 Stück)
 ├── case/                 3D-Druck-Gehäuse (OpenSCAD + STL)
 └── docs/                 Schaltplan-PDF, Bestückungsplan, Renderings
 ```

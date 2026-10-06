@@ -58,9 +58,9 @@ def panelize():
     ], check=True, capture_output=True)
 
 
-def drc():
-    board = pcbnew.LoadBoard(PANEL)
-    rep = os.path.join(PDIR, "drc_report.txt")
+def drc(panel=PANEL):
+    board = pcbnew.LoadBoard(panel)
+    rep = os.path.join(os.path.dirname(panel), "drc_report.txt")
     pcbnew.WriteDRCReport(board, rep, pcbnew.EDA_UNITS_MILLIMETRES, True)
     txt = open(rep).read()
     kinds = collections.Counter(re.findall(r"^\[(\w+)\]", txt, re.M))
@@ -68,15 +68,16 @@ def drc():
     return dict(kinds), (pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight()))
 
 
-def fab():
-    os.makedirs(OUT, exist_ok=True)
+def fab(panel=PANEL, out=OUT, name=C.PROJECT + "-panel", rot_fix=ROT_FIX):
+    """Gerber zip, CPL and JLC BOM of a panel; returns (zip, placements, {lcsc: refs})."""
+    os.makedirs(out, exist_ok=True)
     tmp = tempfile.mkdtemp()
     run("kicad-cli", "pcb", "export", "gerbers", "--layers", GERBER_LAYERS,
-        "--subtract-soldermask", "--no-x2", "-o", tmp + "/", PANEL)
+        "--subtract-soldermask", "--no-x2", "-o", tmp + "/", panel)
     run("kicad-cli", "pcb", "export", "drill", "--format", "excellon",
-        "--excellon-units", "mm", "--excellon-separate-th", "-o", tmp + "/", PANEL)
+        "--excellon-units", "mm", "--excellon-separate-th", "-o", tmp + "/", panel)
     import zipfile
-    zpath = os.path.join(OUT, C.PROJECT + "-panel-gerbers.zip")
+    zpath = os.path.join(out, name + "-gerbers.zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(os.listdir(tmp)):
             z.write(os.path.join(tmp, f), f)
@@ -84,9 +85,9 @@ def fab():
     parts = {p.ref: p for p in C.PARTS}
     pos = os.path.join(tmp, "pos.csv")
     run("kicad-cli", "pcb", "export", "pos", "--format", "csv", "--units", "mm",
-        "--side", "front", "-o", pos, PANEL)
+        "--side", "front", "-o", pos, panel)
     groups = {}
-    with open(pos) as fi, open(os.path.join(OUT, C.PROJECT + "-panel-cpl.csv"), "w", newline="") as fo:
+    with open(pos) as fi, open(os.path.join(out, name + "-cpl.csv"), "w", newline="") as fo:
         w = csv.writer(fo)
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
         for row in csv.DictReader(fi):
@@ -95,20 +96,20 @@ def fab():
             if p is None or not p.bom or not p.lcsc:
                 continue
             rot = float(row["Rot"])
-            for pat, add in ROT_FIX:
+            for pat, add in rot_fix:
                 if re.search(pat, row["Package"]):
                     rot += add
             rot %= 360
             w.writerow([ref, "%.4fmm" % float(row["PosX"]), "%.4fmm" % float(row["PosY"]),
                         "Top", "%g" % rot])
             groups.setdefault((p.value, p.fp.split(":")[1], p.lcsc), []).append(ref)
-    with open(os.path.join(OUT, C.PROJECT + "-panel-bom.csv"), "w", newline="") as f:
+    with open(os.path.join(out, name + "-bom.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
         for (value, fp, lcsc), refs in sorted(groups.items(), key=lambda kv: natural(kv[1][0])):
             w.writerow([value, ",".join(sorted(refs, key=natural)), fp, lcsc])
     shutil.rmtree(tmp)
-    return zpath, sum(len(r) for r in groups.values())
+    return zpath, sum(len(r) for r in groups.values()), groups
 
 
 def render():
@@ -126,7 +127,7 @@ def main():
     panelize()
     kinds, size = drc()
     print("panel %.1f x %.1f mm, DRC: %s" % (size[0], size[1], kinds or "clean"))
-    z, n = fab()
+    z, n, _ = fab()
     print("panel fab ->", os.path.relpath(z, HW), "(%d placements per panel)" % n)
     print("render ->", os.path.relpath(render(), HW))
 
