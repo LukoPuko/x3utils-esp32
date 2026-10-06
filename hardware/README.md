@@ -12,7 +12,8 @@ Ersetzt **ST-LINK, PC und Kabelsalat** – bedient wird alles per Handy-Browser
 
 [Schaltplan (PDF)](docs/x3tuner-schematic.pdf) ·
 [Bestückungsplan (PDF)](docs/x3tuner-assembly.pdf) ·
-[Fertigungsdaten](production/)
+[Fertigungsdaten](production/) ·
+[3D-Druck-Gehäuse](case/)
 
 > [!IMPORTANT]
 > **Status: Design fertig, noch nicht gefertigt.** Die Platine besteht den
@@ -92,7 +93,40 @@ Keine Strapping-, Flash- (26–32) oder PSRAM-Pins (33–37) werden benutzt.
 
 ---
 
-## Bestellung bei JLCPCB (Platine + Bestückung)
+## Wo fertigen lassen? (Platine + Bestückung, Lieferung nach Deutschland)
+
+Preisvergleich, Stand Oktober 2026. Werte sind **inklusive 19 % MwSt.** und
+günstigstem Versand, Genauigkeit etwa ±25 %. Live-Preise im Warenkorb können
+abweichen, vor allem beim ESP32-Modul, weil Speicherchips 2026 teurer geworden sind.
+
+| Anbieter | 5 Stück | 10 Stück | 50 Stück | Anmerkung |
+|---|---|---|---|---|
+| **JLCPCB** (Economic PCBA) | **≈ 18 $/Stk.** | **≈ 13 $/Stk.** | **≈ 9 $/Stk.** | **Empfehlung.** Niedrigste Fixkosten, alle Teile ab Lager (LCSC), MwSt. wird an der Kasse erhoben |
+| NextPCB („Rev0") | ≈ 15 $ | ≈ 12 $ | ≈ 8 $ | Nur die **erste** Bestellung (Bestückung gratis bis 500 $, Aktion bis 31.12.2026). Teilepreise und Versand nicht geprüft |
+| PCBWay | ≈ 19 $ | ≈ 14 $ | ≈ 10–11 $ | 29 $ Einrichtung (Aktion), kauft Teile bei Digi-Key/Mouser |
+| ALLPCB | ≈ 19 $ | ≈ 14 $ | – | 35 $ Einrichtung bis 10 Stück |
+| AISLER (Deutschland) | ≈ 53 € | ≈ 33 € | ≈ 14 € | kein Zoll, aber 7,50 € je Bauteilsorte |
+
+**Fazit:** Bei **JLCPCB** bestellen. Lohnt sich ein einmaliger Versuch, hol
+zusätzlich ein Angebot bei **NextPCB** (Erstbestellungs-Aktion) mit
+`x3tuner-bom-generic.csv` ein. Ein Akku (ca. 2–4 $) und die Stiftleiste (ca. 0,10 $)
+kommen jeweils noch dazu.
+
+So setzen sich die JLC-Kosten zusammen:
+- **Einmal pro Auftrag:** 8 $ Einrichtung und 1,50 $ Schablone.
+- **Pro „Extended"-Bauteilsorte:** 3 $. Laut einer Quelle seit 12/2025 nur noch 1,50 $, das zeigt dir der Warenkorb.
+- **Diese 6 Extended-Sorten sind nötig:** ESP32-Modul, DW01A, ME6211, USB-C, JST-Buchse, Schalter.
+- **Für keine davon** gibt es bei JLC derzeit einen gebührenfreien Ersatz. Das wurde gegen die aktuelle Basic/Preferred-Liste geprüft.
+- **Der Rest ist schon gebührenfrei („Basic"/„Preferred"):** TP4056, HJ8205, SRV05-4, AO3401A, B5819W, Taster, LEDs und alle Widerstände und Kondensatoren.
+- **Größter Kostenblock:** das ESP32-S3-Modul mit ca. 3,40–5,20 $. Die N16R8-Variante kostet praktisch dasselbe wie N8R8 oder N8R2, deshalb ist sie bestückt.
+
+> [!NOTE]
+> **Zoll seit 1. Juli 2026:** Auf Pakete bis 150 € kommt in der EU eine Zollgebühr von 3 € pro Warenposition.
+> JLC und PCBWay erheben die MwSt. über IOSS direkt an der Kasse. Bei größeren
+> Bestellungen (über 150 €) den **DDP**-Versand wählen, sonst kassiert der
+> Paketdienst MwSt. und Gebühr (ca. 15 €) bei der Zustellung.
+
+### Bestellen bei JLCPCB – Schritt für Schritt
 
 Alle Dateien liegen fertig in [`production/`](production/):
 
@@ -101,32 +135,32 @@ Alle Dateien liegen fertig in [`production/`](production/):
 | `x3tuner-gerbers.zip` | Gerber + Bohrdaten → beim PCB-Upload |
 | `x3tuner-bom.csv` | Stückliste mit LCSC-Nummern → bei „PCB Assembly" |
 | `x3tuner-cpl.csv` | Bestückungspositionen → bei „PCB Assembly" |
+| `x3tuner-bom-generic.csv` | herstellerneutrale Stückliste (Hersteller-Teilenummern) für NextPCB, PCBWay & Co. |
 
 1. Auf jlcpcb.com `x3tuner-gerbers.zip` hochladen. Standard-Einstellungen
    reichen: **2 Lagen, 1,6 mm, HASL bleifrei**, beliebige Lötstoppfarbe.
-2. **PCB Assembly** aktivieren → *Economic*, **Top Side**.
+2. **PCB Assembly** aktivieren → **Economic**, **Top Side**, Menge 5 oder 10.
 3. BOM und CPL hochladen. Alle Teile sollten automatisch zugeordnet werden.
 4. In der Bauteil-Vorschau **jede Drehung prüfen**, besonders die ICs
    (U2, U3, U4, U5, U6, Q1, Q2), die LEDs und J2. Das CPL enthält schon die
    üblichen JLC-Korrekturen für SOT-23 und SOIC – kontrolliere sie trotzdem in der Vorschau.
 5. **Nicht bestückt** werden (bewusst, spart Geld): die **Stiftleiste J3**
    (normale gewinkelte 1×5-Stiftleiste 2,54 mm, selbst einlöten) und der Akku.
+6. An der Kasse den **SMT-Gutschein** einlösen: Neukunden bekommen 10 $, außerdem
+   gibt es jeden Monat 9 $, was die Einrichtungsgebühr deckt. Pro Auftrag gilt
+   ein Gutschein.
 
-### Kosten (grobe Schätzung, Stand 2026, ohne Versand und Zoll)
+---
 
-| Posten | ca. |
+## Gehäuse
+
+Ein passendes, schraubenloses **3D-Druck-Gehäuse** inklusive Akkufach liegt in
+[`case/`](case/): ca. **42 × 71 × 17 mm**, mit Federtasten, LED-Fenstern und
+gravierter SWD-Belegung. Druck- und Montageanleitung stehen in [`case/README.md`](case/README.md).
+
+| | |
 |---|---|
-| Bauteile pro Platine (davon ESP32-S3-N16R8 ≈ 4 $) | ≈ 5,50 $ |
-| Platine 2 Lagen, 38 × 60 mm | ≈ 0,40–1 $ pro Stück |
-| JLC-Bestückung: Einrichtung + Schablone | ≈ 10 $ pro Auftrag |
-| „Extended"-Teile: Modul, DW01A, ME6211, USB-C, JST, Schalter (je ~3 $) | ≈ 18 $ pro Auftrag |
-| **≈ pro Gerät bei 10 Stück** | **≈ 9–10 $** |
-| **≈ pro Gerät bei 50 Stück** | **≈ 6–7 $** |
-| + Akku (≈ 2–4 $) und Stiftleiste (≈ 0,10 $) | |
-
-Kostenbewusste Teilewahl: TP4056, HJ8205, SRV05-4, AO3401A, B5819W, Taster,
-alle Widerstände/Kondensatoren und rote/grüne LED sind JLC-„Basic"- oder
-„Preferred"-Teile ohne Rüstgebühr.
+| ![Gehäuse](docs/case-assembly.png) | ![Explosionsansicht](docs/case-exploded.png) |
 
 ---
 
@@ -185,8 +219,10 @@ hardware/
 ├── gen/drc.py            KiCad-DRC
 ├── gen/make_fab.py       Gerber/Bohrdaten, BOM, CPL, PDFs, Bilder
 ├── gen/build.sh          alles in einem Rutsch
+├── gen/make_case.sh      Gehäuse: Positionen aus circuit.py → STL + Bilder (OpenSCAD)
 ├── kicad/                KiCad-7-Projekt (mit KiCad 7 oder neuer öffnen und bearbeiten)
-├── production/           Fertigungsdaten für JLCPCB
+├── production/           Fertigungsdaten (JLCPCB + herstellerneutrale Stückliste)
+├── case/                 3D-Druck-Gehäuse (OpenSCAD + STL)
 └── docs/                 Schaltplan-PDF, Bestückungsplan, Renderings
 ```
 

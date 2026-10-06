@@ -76,6 +76,28 @@ def bom():
     return out, sum(len(r) for r in groups.values()), len(groups)
 
 
+def bom_generic():
+    """Assembler-neutral BOM (for NextPCB, PCBWay, ... quotes)."""
+    groups = {}
+    for p in C.PARTS:
+        if not p.bom or not p.lcsc:
+            continue
+        key = (p.value, p.fp.split(":")[1], p.lcsc)
+        groups.setdefault(key, []).append(p)
+    out = os.path.join(PROD, C.PROJECT + "-bom-generic.csv")
+    with open(out, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["Designator", "Qty", "Value", "Package", "Manufacturer", "MPN", "LCSC", "Description"])
+        for (value, fp, lcsc), parts in sorted(groups.items(), key=lambda kv: natural(kv[1][0].ref)):
+            mfr, mpn = C.MPN.get(lcsc, ("", ""))
+            refs = sorted((p.ref for p in parts), key=natural)
+            sym = parts[0].sym
+            desc = ("Widerstand 1 %, Dickschicht" if sym == "Device:R" else
+                    "MLCC X5R/X7R, >= 10 V" if sym == "Device:C" else parts[0].desc)
+            w.writerow([",".join(refs), len(refs), value, fp, mfr, mpn, lcsc, desc])
+    return out
+
+
 def natural(s):
     return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
 
@@ -126,6 +148,7 @@ def main():
     print("gerbers ->", os.path.relpath(z, HW), "(%d files)" % len(names))
     b, n, lines = bom()
     print("bom     ->", os.path.relpath(b, HW), "(%d parts, %d lines)" % (n, lines))
+    print("bom     ->", os.path.relpath(bom_generic(), HW), "(assembler-neutral)")
     c, n = cpl()
     print("cpl     ->", os.path.relpath(c, HW), "(%d placements)" % n)
     docs()

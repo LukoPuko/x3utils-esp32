@@ -16,4 +16,8 @@ r case-assembly.png assembly --camera=60,-70,75,19,27,8 --viewall
 r case-exploded.png exploded --camera=60,-70,85,19,27,12 --viewall
 r case-lid.png lid --camera=19,27,120,19,27,0 --viewall
 r case-bottom.png bottom --camera=-40,-60,90,19,27,4 --viewall
+for f in ../docs/case-*.png; do  # trim the empty background, keep a margin
+  bg=$(convert "$f" -format '%[pixel:p{0,0}]' info:)
+  convert "$f" -trim +repage -bordercolor "$bg" -border 30 "$f"
+done
 echo "case -> hardware/case/stl/, renders -> hardware/docs/case-*.png"

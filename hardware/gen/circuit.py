@@ -218,6 +218,26 @@ PARTS = [
          "Stiftleiste 1x5 gewinkelt zum Scooter (3V3 DIO CLK RST GND)"),
 ]
 
+# Manufacturer part numbers for assemblers that don't use LCSC numbers
+# (NextPCB, PCBWay, ...). Passives are generic: any 1 % thick-film resistor /
+# X5R-X7R MLCC of that value and size will do.
+MPN = {
+    "C2913202": ("Espressif", "ESP32-S3-WROOM-1-N16R8"),
+    "C16581": ("TOPPOWER", "TP4056-42-ESOP8"),
+    "C351410": ("PUOLOP", "DW01A"),
+    "C20069150": ("HJ", "HJ8205 (alt. FS8205A SOT-23-6, same pinout)"),
+    "C82942": ("Microne", "ME6211C33M5G-N"),
+    "C85364": ("ProTek", "SRV05-4-P-T7"),
+    "C15127": ("AOS", "AO3401A"),
+    "C8598": ("CJ", "B5819W SL"),
+    "C165948": ("HRO", "TYPE-C-31-M-12"),
+    "C295747": ("JST", "S2B-PH-SM4-TB(LF)(SN)"),
+    "C221660": ("C&K", "JS102011SAQN"),
+    "C318884": ("XKB", "TS-1187A-B-A-B"),
+    "C2286": ("KENTO", "KT-0603R"),
+    "C89811": ("NationStar", "NCD0603Y2"),
+}
+
 # Silkscreen labels: (text, x, y, size, rotation, layer "F"/"B")
 SILK = [
     ("X3-Tuner", 5.2, 3.2, 1.1, 0, "F"),
