@@ -1,0 +1,71 @@
+name: build-firmware
+
+# Builds the ESP32 firmware on GitHub's runners (which have open internet, so
+# the PlatformIO packages download fine) and publishes ready-to-flash .bin
+# files as downloadable artifacts. On a version tag (v*) it also attaches them
+# to a GitHub Release so you can hand a friend a plain download link.
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: esp32dev
+            chip: esp32
+            boot: "0x1000"
+          - env: esp32-s3
+            chip: esp32s3
+            boot: "0x0"
+          - env: esp32-c3
+            chip: esp32c3
+            boot: "0x0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PlatformIO + esptool
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio esptool
+
+      - name: Build ${{ matrix.env }}
+        run: pio run -e ${{ matrix.env }}
+
+      - name: Merge into a single flashable image
+        run: |
+          out=".pio/build/${{ matrix.env }}"
+          esptool.py --chip ${{ matrix.chip }} merge_bin \
+            --flash_mode dio --flash_size keep \
+            -o "x3utils-${{ matrix.env }}-merged.bin" \
+            ${{ matrix.boot }} "$out/bootloader.bin" \
+            0x8000 "$out/partitions.bin" \
+            0x10000 "$out/firmware.bin"
+          # Also keep the individual parts next to the merged file.
+          cp "$out/firmware.bin"   "x3utils-${{ matrix.env }}-firmware.bin"
+          cp "$out/bootloader.bin" "x3utils-${{ matrix.env }}-bootloader.bin"
+          cp "$out/partitions.bin" "x3utils-${{ matrix.env }}-partitions.bin"
+          ls -l x3utils-${{ matrix.env }}-*.bin
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: x3utils-${{ matrix.env }}
+          path: x3utils-${{ matrix.env }}-*.bin
+          if-no-files-found: error
+
+      - name: Attach to release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: x3utils-${{ matrix.env }}-*.bin

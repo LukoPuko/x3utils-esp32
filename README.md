@@ -105,6 +105,39 @@ IP on the serial monitor or your router).
 
 ---
 
+## Prebuilt firmware (give it to a friend)
+
+You don't have to make a friend install PlatformIO. There are two ways to hand
+over a ready-to-flash image.
+
+### From a local build
+
+After `pio run -e esp32-s3`, the images are in `.pio/build/esp32-s3/`. Flash
+them with `esptool` (works on any OS, no PlatformIO needed):
+
+```bash
+# ESP32-S3 / ESP32-C3: bootloader at 0x0
+esptool.py --chip esp32s3 -b 460800 write_flash \
+  0x0 bootloader.bin  0x8000 partitions.bin  0x10000 firmware.bin
+
+# classic ESP32: bootloader at 0x1000 instead of 0x0
+esptool.py --chip esp32 -b 460800 write_flash \
+  0x1000 bootloader.bin  0x8000 partitions.bin  0x10000 firmware.bin
+```
+
+### From GitHub (no toolchain at all)
+
+Every push builds the firmware in CI (`.github/workflows/build.yml`) and uploads
+ready `.bin` files — including a single **merged** image — under the repo's
+**Actions → latest run → Artifacts**. Push a tag like `v0.1` and the same files
+are attached to a **GitHub Release** as a plain download link.
+
+The merged image can be flashed with no install at all via a **browser web
+flasher** (Chrome/Edge on desktop), e.g. <https://espressif.github.io/esptool-js/>:
+connect the board, pick `x3utils-<board>-merged.bin`, flash at offset `0x0`.
+
+---
+
 ## Using it from your phone
 
 1. Wire SWCLK / SWDIO / GND / nRST to the VCU, power the VCU from one source.
