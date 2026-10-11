@@ -1,0 +1,17 @@
+Designator,Qty,Value,Package,Manufacturer,MPN,LCSC,Description
+"C1,C2,C3,C4",4,10uF,C_0603_1608Metric,,,C19702,"MLCC X5R/X7R, >= 10 V"
+"C5,C6",2,100nF,C_0402_1005Metric,,,C1525,"MLCC X5R/X7R, >= 10 V"
+D1,1,B5819W,D_SOD-123,CJ,B5819W SL,C8598,"Akku -> 5V-Pin, sperrt bei USB"
+D2,1,red,LED_0603_1608Metric,KENTO,KT-0603R,C2286,LED rot = lädt
+D3,1,green,LED_0805_2012Metric,KENTO,KT-0805G,C2297,LED grün = voll
+"J1,J2",2,Sockel SuperMini,PinSocket_1x08_P2.54mm_Vertical,,"PM2.54-1X8PM-H85 (Buchsenleiste 1x8, 2,54 mm, H 8,5 mm)",C42431840,"Buchsenleiste 1x8 2,54 mm (H 8,5 mm) fuer ESP32-C3 SuperMini"
+J3,1,AKKU,JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,JST,S2B-PH-SM4-TB(LF)(SN),C295747,"LiPo 1S mit Schutzschaltung, JST-PH 2.0"
+J4,1,SWD-ZIEL,PinHeader_1x05_P2.54mm_Horizontal,hanxia,"HX PZ2.54-1x5P WZ (1x5 2.54 mm, gewinkelt, THT)",C32713264,Stiftleiste 1x5 gewinkelt zum Scooter (3V3 DIO CLK RST GND)
+"Q1,Q2",2,AO3401A,SOT-23,AOS,AO3401A,C15127,Ein/Aus Akku (P-MOSFET)
+R1,1,3.3k,R_0402_1005Metric,,,C25890,"Widerstand 1 %, Dickschicht"
+"R2,R3",2,1k,R_0402_1005Metric,,,C11702,"Widerstand 1 %, Dickschicht"
+"R4,R5,R6,R7,R8,R9",6,100k,R_0402_1005Metric,,,C25741,"Widerstand 1 %, Dickschicht"
+"R10,R11",2,1M,R_0402_1005Metric,,,C26083,"Widerstand 1 %, Dickschicht"
+"R12,R13,R14",3,100,R_0402_1005Metric,,,C25076,"Widerstand 1 %, Dickschicht"
+SW1,1,EIN/AUS,SW_SPDT_MSK12C02,SHOU HAN,MSK12C02,C431540,Schiebeschalter Ein/Aus
+U1,1,TP4056,SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.3mm,TOPPOWER,TP4056-42-ESOP8,C16581,"Li-Ion Lader 1S, ~360 mA"

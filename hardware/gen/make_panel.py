@@ -25,15 +25,13 @@ import tempfile
 import pcbnew
 
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C  # noqa: E402
+from cfg import BASE as HW, C, DOCS, KDIR, PROD  # noqa: E402
 from make_fab import GERBER_LAYERS, ROT_FIX, natural, run  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-HW = os.path.normpath(os.path.join(HERE, ".."))
-SRC = os.path.join(HW, "kicad", C.PROJECT + ".kicad_pcb")
-PDIR = os.path.join(HW, "kicad", "panel")
+SRC = os.path.join(KDIR, C.PROJECT + ".kicad_pcb")
+PDIR = os.path.join(KDIR, "panel")
 PANEL = os.path.join(PDIR, C.PROJECT + "-panel.kicad_pcb")
-OUT = os.path.join(HW, "production", "panel")
+OUT = os.path.join(PROD, "panel")
 KIKIT = os.environ.get("KIKIT", "kikit")
 
 COLS, ROWS = 5, 2
@@ -51,8 +49,8 @@ def panelize():
         "--framing", "railstb; width: 5mm; space: 3mm",
         "--tooling", "3hole; hoffset: 2.5mm; voffset: 2.5mm; size: 1.152mm",
         "--fiducials", "3fid; hoffset: 8mm; voffset: 2.5mm; coppersize: 1mm; opening: 2mm",
-        "--text", "simple; text: X3-Tuner v%s - panel %dx%d; anchor: mt; voffset: 2.5mm; "
-                  "hjustify: center; vjustify: center" % (C.REV, COLS, ROWS),
+        "--text", "simple; text: %s v%s - panel %dx%d; anchor: mt; voffset: 2.5mm; "
+                  "hjustify: center; vjustify: center" % (getattr(C, "SHORT_NAME", "X3-Tuner"), C.REV, COLS, ROWS),
         "--post", "millradius: 1mm; refillzones: true",
         SRC, PANEL,
     ], check=True, capture_output=True)
@@ -115,7 +113,7 @@ def fab(panel=PANEL, out=OUT, name=C.PROJECT + "-panel", rot_fix=ROT_FIX):
 def render():
     from render import PX_PER_MM  # noqa: F401  (same toolchain as the board renders)
     svg = os.path.join(PDIR, "panel.svg")
-    png = os.path.join(HW, "docs", "panel-top.png")
+    png = os.path.join(DOCS, "panel-top.png")
     run("kicad-cli", "pcb", "export", "svg", "--layers", "F.Cu,F.SilkS,F.Mask,Edge.Cuts",
         "--exclude-drawing-sheet", "--page-size-mode", "2", "-o", svg, PANEL)
     run("rsvg-convert", "-z", "2.5", "-b", "white", svg, "-o", png)

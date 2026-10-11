@@ -4,7 +4,7 @@
 
 X3Board x3board;
 
-#if defined(X3_BOARD_TUNER)
+#if defined(X3_BOARD_TUNER) || defined(X3_BOARD_CARRIER)
 static const bool kHasLed = true;
 #else
 // Dev boards: GPIO48 on an S3 DevKit is an addressable RGB LED, so only drive
@@ -22,15 +22,15 @@ static int readDivided(int pin) {
 
 void X3Board::begin() {
   if (PIN_TGT_EN >= 0) {
-    digitalWrite(PIN_TGT_EN, LOW);
+    digitalWrite(PIN_TGT_EN, !TGT_EN_ON);
     pinMode(PIN_TGT_EN, OUTPUT);
   }
   if (PIN_VTGT_SENSE >= 0) analogSetPinAttenuation(PIN_VTGT_SENSE, ADC_11db);
   if (PIN_VBAT_SENSE >= 0) analogSetPinAttenuation(PIN_VBAT_SENSE, ADC_11db);
   if (PIN_VBUS_SENSE >= 0) analogSetPinAttenuation(PIN_VBUS_SENSE, ADC_11db);
   if (kHasLed && PIN_LED_DEFAULT >= 0) {
+    digitalWrite(PIN_LED_DEFAULT, !LED_ON);
     pinMode(PIN_LED_DEFAULT, OUTPUT);
-    digitalWrite(PIN_LED_DEFAULT, LOW);
   }
 }
 
@@ -43,7 +43,7 @@ void X3Board::loopTick(bool busy) {
   bool on = (now - _ledT) % period < onTime;
   if (on != _ledOn) {
     _ledOn = on;
-    digitalWrite(PIN_LED_DEFAULT, on ? HIGH : LOW);
+    digitalWrite(PIN_LED_DEFAULT, on ? LED_ON : !LED_ON);
   }
 }
 
@@ -59,14 +59,14 @@ bool X3Board::setTargetPower(bool on, String &why, bool skipExternalCheck) {
       return false;
     }
   }
-  digitalWrite(PIN_TGT_EN, on ? HIGH : LOW);
+  digitalWrite(PIN_TGT_EN, on ? TGT_EN_ON : !TGT_EN_ON);
   _tgtOn = on;
   return true;
 }
 
 bool X3Board::dischargeTarget(uint32_t timeoutMs) {
   if (!hasTargetPower()) return false;
-  digitalWrite(PIN_TGT_EN, LOW);
+  digitalWrite(PIN_TGT_EN, !TGT_EN_ON);
   _tgtOn = false;
   uint32_t start = millis();
   while (millis() - start < timeoutMs) {
@@ -95,4 +95,4 @@ int X3Board::batteryPercent() const {
 
 // Read through the ADC: a 5 V VBUS halves to ~2.5 V, right at the S3's
 // digital VIH threshold, so a digitalRead() would be unreliable.
-bool X3Board::usbPresent() const { return readDivided(PIN_VBUS_SENSE) > 3500; }
+bool X3Board::usbPresent() const { return readDivided(PIN_VBUS_SENSE) > VBUS_PRESENT_MV; }

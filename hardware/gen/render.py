@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C  # noqa: E402
+from cfg import C  # noqa: E402
 from make_pcb import OX, OY, PCB  # noqa: E402
 
 PX_PER_MM = 96 / 25.4

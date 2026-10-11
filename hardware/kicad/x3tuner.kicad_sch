@@ -10,7 +10,7 @@
     (rev "1.1")
     (company "x3utils-esp32")
     (comment 1 "Generiert aus hardware/gen/circuit.py - nicht von Hand editieren, sondern circuit.py aendern")
-    (comment 2 "ESP32-S3 SWD-Programmer fuer AT32F415 VCUs der X3-Scooter-Familie")
+    (comment 2 "ESP32-C3 SWD-Programmer fuer AT32F415 VCUs der X3-Scooter-Familie")
   )
 
   (lib_symbols

@@ -16,13 +16,13 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C  # noqa: E402
+from cfg import C, KDIR, PROD  # noqa: E402
 from make_fab import natural  # noqa: E402
 from make_panel import HW, KIKIT, SRC, drc, fab  # noqa: E402
 
-PDIR = os.path.join(HW, "kicad", "nextpcb")
+PDIR = os.path.join(KDIR, "nextpcb")
 BOARD = os.path.join(PDIR, C.PROJECT + "-rails.kicad_pcb")
-OUT = os.path.join(HW, "production", "nextpcb")
+OUT = os.path.join(PROD, "nextpcb")
 NAME = C.PROJECT + "-nextpcb"
 
 

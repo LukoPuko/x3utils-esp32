@@ -15,11 +15,9 @@ import uuid
 import pcbnew
 
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C  # noqa: E402
 import sexpr  # noqa: E402
+from cfg import C, KDIR, LIBDIR, LOCAL_LIBS  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-KDIR = os.path.normpath(os.path.join(HERE, "..", "kicad"))
 PCB = os.path.join(KDIR, C.PROJECT + ".kicad_pcb")
 PRO = os.path.join(KDIR, C.PROJECT + ".kicad_pro")
 FPROOT = "/usr/share/kicad/footprints"
@@ -38,7 +36,7 @@ def pt(x, y):
 
 def sym_uuid(ref):
     # Stable UUIDs shared with the schematic generator (links PCB <-> SCH).
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, "x3tuner/" + ref))
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, C.PROJECT + "/" + ref))
 
 
 # ── project file: net classes + JLCPCB-safe design rules ─────────────────────
@@ -124,8 +122,16 @@ def write_project():
         "sheets": [],
         "text_variables": {},
     }
+    os.makedirs(KDIR, exist_ok=True)
     with open(PRO, "w") as f:
         json.dump(pro, f, indent=2)
+    if KDIR != LIBDIR:
+        # other boards borrow the shared project footprints (switch, KiKit tabs)
+        rel = os.path.relpath(LIBDIR, KDIR)
+        with open(os.path.join(KDIR, "fp-lib-table"), "w") as f:
+            f.write("(fp_lib_table\n  (version 7)\n" + "".join(
+                '  (lib (name "%s")(type "KiCad")(uri "${KIPRJMOD}/%s/%s.pretty")(options "")(descr ""))\n'
+                % (lib, rel, lib) for lib in LOCAL_LIBS) + ")\n")
 
 
 # ── geometry helpers ─────────────────────────────────────────────────────────
@@ -298,7 +304,7 @@ def stage_place():
 
     for p in C.PARTS:
         lib, name = p.fp.split(":")
-        libdir = os.path.join(KDIR if lib == C.PROJECT else FPROOT, lib + ".pretty")
+        libdir = os.path.join(LIBDIR if lib in LOCAL_LIBS else FPROOT, lib + ".pretty")
         fp = pcbnew.FootprintLoad(libdir, name)
         if fp is None:
             raise SystemExit("footprint not found: " + p.fp)
@@ -332,11 +338,12 @@ def stage_place():
                     pad.SetZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
         board.Add(fp)
 
-    preroute_usb(board, net)
+    if any(p.ref == "J1" and "USB_C" in p.fp for p in C.PARTS):
+        preroute_usb(board, net)
 
     # KiKit tab annotations (virtual footprints, nothing gets manufactured)
-    for i, (x, y, rot) in enumerate(C.PANEL_TABS):
-        tab = pcbnew.FootprintLoad(os.path.join(KDIR, "kikit.pretty"), "Tab")
+    for i, (x, y, rot) in enumerate(getattr(C, "PANEL_TABS", [])):
+        tab = pcbnew.FootprintLoad(os.path.join(LIBDIR, "kikit.pretty"), "Tab")
         tab.SetFPIDAsString("kikit:Tab")
         tab.SetReference("KT%d" % (i + 1))
         tab.SetPosition(pt(x, y))
@@ -358,7 +365,10 @@ def stage_place():
     # Antenna keep-out across the whole board width above the module's
     # antenna base (module footprint carries its own, this one makes it
     # explicit for the router and for the pours).
-    add_keepout(board, -1, -1, C.BOARD_W + 1, C.ANTENNA_Y, "ANTENNA_KEEPOUT")
+    if hasattr(C, "ANTENNA_Y"):
+        add_keepout(board, -1, -1, C.BOARD_W + 1, C.ANTENNA_Y, "ANTENNA_KEEPOUT")
+    for x0, y0, x1, y1, name in getattr(C, "KEEPOUTS", []):
+        add_keepout(board, x0, y0, x1, y1, name)
 
     pcbnew.SaveBoard(PCB, board)
     print("placed", len(C.PARTS), "parts,", len(nets), "nets ->", PCB)
@@ -385,7 +395,7 @@ def dsn_rect(layer, x0, y0, x1, y1):
 
 
 # Areas the router must not use (board coordinates, mm).
-EPAD = C.EPAD_XY                            # module EPAD centre
+EPAD = getattr(C, "EPAD_XY", None)          # module EPAD centre (WROOM boards)
 
 
 def router_keepouts():
@@ -397,13 +407,18 @@ def router_keepouts():
               (L, -1, -1, e, H + 1), (L, W - e, -1, W + 1, H + 1)]
         for cx, cy in ((0, 0), (W, 0), (0, H), (W, H)):
             k.append((L, cx - 1.3, cy - 1.3, cx + 1.3, cy + 1.3))
-    # no top-layer tracks between the module pads (under the module body)
-    k.append(("F.Cu", C.U1_X - 7.8, C.ANTENNA_Y, C.U1_X + 7.8, C.MODULE_BOTTOM_Y - 0.3))
-    # keep the bottom layer under the EPAD / charger pad free for GND vias
-    k.append(("B.Cu", EPAD[0] - 2.3, EPAD[1] - 2.3, EPAD[0] + 2.3, EPAD[1] + 2.3))
-    xs = [v[0] for v in C.THERMAL_VIAS]
-    ys = [v[1] for v in C.THERMAL_VIAS]
-    k.append(("B.Cu", min(xs) - 0.8, min(ys) - 0.8, max(xs) + 0.8, max(ys) + 0.8))
+    if EPAD:
+        # no top-layer tracks between the module pads (under the module body)
+        k.append(("F.Cu", C.U1_X - 7.8, C.ANTENNA_Y, C.U1_X + 7.8, C.MODULE_BOTTOM_Y - 0.3))
+        # keep the bottom layer under the EPAD free for GND vias
+        k.append(("B.Cu", EPAD[0] - 2.3, EPAD[1] - 2.3, EPAD[0] + 2.3, EPAD[1] + 2.3))
+    tv = getattr(C, "THERMAL_VIAS", [])
+    if tv:  # ... and under the charger pad
+        xs = [v[0] for v in tv]
+        ys = [v[1] for v in tv]
+        k.append(("B.Cu", min(xs) - 0.8, min(ys) - 0.8, max(xs) + 0.8, max(ys) + 0.8))
+    for x0, y0, x1, y1, _ in getattr(C, "KEEPOUTS", []):
+        k += [("F.Cu", x0, y0, x1, y1), ("B.Cu", x0, y0, x1, y1)]
     return k
 
 
@@ -447,11 +462,12 @@ def _free(board, net, x, y, r, obstacles):
 def add_gnd_vias(board, net):
     """EPAD thermal vias + a stitching grid tying both GND pours together."""
     epad = 0
-    for dx in (-C.EPAD_VIA, C.EPAD_VIA):
-        for dy in (-C.EPAD_VIA, C.EPAD_VIA):
-            _new_via(board, net, EPAD[0] + dx, EPAD[1] + dy)
-            epad += 1
-    for x, y in C.THERMAL_VIAS:
+    if EPAD:
+        for dx in (-C.EPAD_VIA, C.EPAD_VIA):
+            for dy in (-C.EPAD_VIA, C.EPAD_VIA):
+                _new_via(board, net, EPAD[0] + dx, EPAD[1] + dy)
+                epad += 1
+    for x, y in getattr(C, "THERMAL_VIAS", []):
         _new_via(board, net, x, y)
         epad += 1
 
@@ -468,7 +484,7 @@ def add_gnd_vias(board, net):
     # Holes of mechanical (unnumbered) pads also block vias.
     courtyards = []
     for fp in board.GetFootprints():
-        if fp.GetReference() in ("U1",):
+        if fp.GetReference() in getattr(C, "VIAS_UNDER", ("U1",)):
             continue
         cy = fp.GetCourtyard(pcbnew.F_Cu if False else pcbnew.F_CrtYd)
         if cy.OutlineCount():
@@ -477,13 +493,15 @@ def add_gnd_vias(board, net):
     placed = 0
     W, H = C.BOARD_W, C.BOARD_H
     step = 2.5
-    y = C.ANTENNA_Y + 1.2
+    y = getattr(C, "ANTENNA_Y", 0) + 1.2
     while y < H - 1.2:
         x = 1.2
         while x < W - 1.2:
             p = pt(x, y)
             # skip the module's antenna keep-out and component bodies
-            inside_part = any(c.Contains(p) for c in courtyards)
+            inside_part = any(c.Contains(p) for c in courtyards) or any(
+                x0 - 0.6 < x < x1 + 0.6 and y0 - 0.6 < y < y1 + 0.6
+                for x0, y0, x1, y1, _ in getattr(C, "KEEPOUTS", []))
             if not inside_part and _free(board, net, x, y, 0.3 + 0.2, obstacles):
                 v = _new_via(board, net, x, y)
                 obstacles.append((v, pcbnew.F_Cu))

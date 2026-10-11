@@ -10,25 +10,23 @@ import sys
 import uuid
 
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C  # noqa: E402
+from cfg import C, KDIR  # noqa: E402
 from sexpr import Q, dump, find, find_all, parse  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-KDIR = os.path.normpath(os.path.join(HERE, "..", "kicad"))
 SYMROOT = "/usr/share/kicad/symbols"
 SCH = os.path.join(KDIR, C.PROJECT + ".kicad_sch")
 LIB = os.path.join(KDIR, C.PROJECT + ".kicad_sym")
-ROOT_UUID = str(uuid.uuid5(uuid.NAMESPACE_URL, "x3tuner/root-sheet"))
+ROOT_UUID = str(uuid.uuid5(uuid.NAMESPACE_URL, C.PROJECT + "/root-sheet"))
 GRID = 1.27
 STUB = 2.54
 
 
 def uid(*parts):
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, "x3tuner/" + "/".join(map(str, parts))))
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, C.PROJECT + "/" + "/".join(map(str, parts))))
 
 
 def sym_uuid(ref):
-    return str(uuid.uuid5(uuid.NAMESPACE_URL, "x3tuner/" + ref))
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, C.PROJECT + "/" + ref))
 
 
 def snap(v):
@@ -106,6 +104,7 @@ def write_project_lib():
                   [("3", "S2", "passive"), ("4", "G2", "input"), ("5", "D", "passive")],
                   width=10.16),
     ]
+    os.makedirs(KDIR, exist_ok=True)
     with open(LIB, "w") as f:
         f.write("(kicad_symbol_lib (version 20220914) (generator x3tuner_gen)\n")
         f.write("".join(syms))
@@ -256,9 +255,10 @@ class Sheet:
         hdr = ('(kicad_sch (version 20230121) (generator eeschema)\n\n  (uuid %s)\n\n  (paper "A3")\n\n'
                '  (title_block\n    (title "%s")\n    (date "2026-10-05")\n    (rev "%s")\n'
                '    (company "x3utils-esp32")\n'
-               '    (comment 1 "Generiert aus hardware/gen/circuit.py - nicht von Hand editieren, sondern circuit.py aendern")\n'
-               '    (comment 2 "ESP32-S3 SWD-Programmer fuer AT32F415 VCUs der X3-Scooter-Familie")\n  )\n\n'
-               % (ROOT_UUID, C.TITLE, C.REV))
+               '    (comment 1 "Generiert aus hardware/gen/%s.py - nicht von Hand editieren, sondern %s.py aendern")\n'
+               '    (comment 2 "%s")\n  )\n\n'
+               % (ROOT_UUID, C.TITLE, C.REV, C.__name__, C.__name__, getattr(
+                   C, "SCH_COMMENT", "ESP32-C3 SWD-Programmer fuer AT32F415 VCUs der X3-Scooter-Familie")))
         libs = "  (lib_symbols\n" + "".join(
             "    " + dump(s, 2) + "\n" for _, s in sorted(self.lib_symbols.items())) + "  )\n\n"
         body = "".join(self.items)

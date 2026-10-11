@@ -24,7 +24,8 @@ static const int PIN_SWCLK_DEFAULT = 5;
 static const int PIN_SWDIO_DEFAULT = 6;
 static const int PIN_NRST_DEFAULT = 7;
 static const int PIN_LED_DEFAULT = 0;
-#elif defined(X3_BOARD_C3)
+#elif defined(X3_BOARD_C3) || defined(X3_BOARD_CARRIER)
+// Plain ESP32-C3 SuperMini, also on the X3-Tuner Mini carrier (hardware/carrier/)
 static const int PIN_SWCLK_DEFAULT = 4;
 static const int PIN_SWDIO_DEFAULT = 5;
 static const int PIN_NRST_DEFAULT = 6;
@@ -49,11 +50,29 @@ static const int PIN_TGT_EN = 10;      // high = target LDO (3.3 V to the VCU) o
 static const int PIN_VTGT_SENSE = 3;   // ADC1: VTGT through a 1:2 divider
 static const int PIN_VBAT_SENSE = 4;   // ADC1: battery through a 1:2 divider
 static const int PIN_VBUS_SENSE = 1;   // ADC1: VBUS through a 1:2 divider (USB present)
+#elif defined(X3_BOARD_CARRIER)
+// X3-Tuner Mini carrier with a plug-in ESP32-C3 SuperMini (hardware/carrier/)
+static const int PIN_TGT_EN = 7;       // low = target supply on (P-MOSFET gate)
+static const int PIN_VTGT_SENSE = 3;   // ADC1: VTGT through a 1:2 divider
+static const int PIN_VBAT_SENSE = 0;   // ADC1: battery through a 1:2 divider (1M/1M)
+static const int PIN_VBUS_SENSE = 1;   // ADC1: SuperMini 5V pin through a 1:2 divider
 #else
 static const int PIN_TGT_EN = -1;
 static const int PIN_VTGT_SENSE = -1;
 static const int PIN_VBAT_SENSE = -1;
 static const int PIN_VBUS_SENSE = -1;
+#endif
+
+#if defined(X3_BOARD_CARRIER)
+static const int TGT_EN_ON = LOW;      // P-MOSFET straight from the GPIO
+static const int LED_ON = LOW;         // SuperMini LED is wired to 3V3
+// On battery the 5V pin still sees the cell minus a Schottky drop (<= 3.9 V),
+// so USB is only assumed above 4.3 V.
+static const int VBUS_PRESENT_MV = 4300;
+#else
+static const int TGT_EN_ON = HIGH;
+static const int LED_ON = HIGH;
+static const int VBUS_PRESENT_MV = 3500;
 #endif
 
 // A VCU already showing more than this on its 3V3 pin is powered from

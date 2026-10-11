@@ -17,14 +17,9 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C  # noqa: E402
+from cfg import BASE as HW, C, DOCS, KDIR, PROD  # noqa: E402
 from render import render  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-HW = os.path.normpath(os.path.join(HERE, ".."))
-KDIR = os.path.join(HW, "kicad")
-PROD = os.path.join(HW, "production")
-DOCS = os.path.join(HW, "docs")
 PCB = os.path.join(KDIR, C.PROJECT + ".kicad_pcb")
 SCH = os.path.join(KDIR, C.PROJECT + ".kicad_sch")
 

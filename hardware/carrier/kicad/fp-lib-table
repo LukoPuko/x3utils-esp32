@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "x3tuner")(type "KiCad")(uri "${KIPRJMOD}/../../kicad/x3tuner.pretty")(options "")(descr ""))
+  (lib (name "kikit")(type "KiCad")(uri "${KIPRJMOD}/../../kicad/kikit.pretty")(options "")(descr ""))
+)

@@ -1,9 +1,8 @@
 """Compare the netlist KiCad derives from the schematic with circuit.py."""
 import os, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
-import circuit as C
+from cfg import C, KDIR
 from sexpr import parse, find, find_all
-KDIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "kicad"))
 out = os.path.join(tempfile.mkdtemp(), "n.net")
 subprocess.run(["kicad-cli", "sch", "export", "netlist", "--format", "kicadsexpr", "-o", out,
                 os.path.join(KDIR, C.PROJECT + ".kicad_sch")], check=True, capture_output=True)
