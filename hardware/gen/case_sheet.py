@@ -1,11 +1,14 @@
-"""Compose the dimensioned view sheet hardware/docs/case-views.png.
+"""Compose the dimensioned view sheet docs/case-views.png of a case.
 
 make_case.sh renders five orthographic views of the closed case at one common
 scale (view-top/-under/-front/-right/-left.png, already trimmed to the case
 outline) plus OpenSCAD's echo output with the outer size. This script lays
 them out in third-angle projection and draws the overall dimensions.
 
-usage: case_sheet.py <render dir> <out.png>     (needs Pillow)
+usage: case_sheet.py <render dir> <out.png> ["left|right|far end|title"]   (needs Pillow)
+
+The optional captions name the left and right side views; with a far-end
+caption the view of the far end face (view-back.png) is added as well.
 """
 
 import os
@@ -72,10 +75,12 @@ def dim_v(img, y0, y1, x, ref_x, label, f):
 
 def main():
     src, out = sys.argv[1], sys.argv[2]
+    cap_l, cap_r, cap_back, title = (sys.argv[3] if len(sys.argv) > 3 else
+                                     "Schalter|USB-C||X3-Tuner Gehäuse").split("|")
     echo = open(os.path.join(src, "case.echo")).read()
     w_mm, l_mm, h_mm = (float(v) for v in re.search(r"CASE_SIZE = \[([^\]]*)\]", echo).group(1).split(","))
     v = {k: Image.open(os.path.join(src, "view-%s.png" % k)).convert("RGB")
-         for k in ("top", "under", "front", "right", "left")}
+         for k in ("top", "under", "front", "right", "left", "back") if k != "back" or cap_back}
     # side views: rotate so the port end (-Y) is at the bottom, like the top view
     v["right"] = v["right"].rotate(90, expand=True)
     v["left"] = v["left"].rotate(-90, expand=True)
@@ -102,11 +107,15 @@ def main():
     img.paste(front, (x_top, y_front))
 
     cy = y_top + top.height + 34
-    text_c(d, (x_left + side.width / 2, cy), "Schalter", f_cap)
+    text_c(d, (x_left + side.width / 2, cy), cap_l, f_cap)
     text_c(d, (x_top + top.width / 2, cy), "Oben", f_cap)
-    text_c(d, (x_right + side.width / 2, cy), "USB-C", f_cap)
+    text_c(d, (x_right + side.width / 2, cy), cap_r, f_cap)
     text_c(d, (x_under + top.width / 2, cy), "Unten", f_cap)
     text_c(d, (x_top + front.width / 2, y_front + front.height + 34), "Stirnseite SWD", f_cap)
+    if cap_back:  # far end face, next to the SWD end
+        back = v["back"]
+        img.paste(back, (x_right, y_front))
+        text_c(d, (x_right + back.width / 2, y_front + back.height + 34), cap_back, f_cap)
 
     fmt = lambda mm: ("%.1f" % mm).replace(".", ",")  # noqa: E731
     dim_h(img, x_top, x_top + top.width, y_top - 50, y_top, fmt(w_mm), f_dim)
@@ -114,7 +123,7 @@ def main():
     dim_h(img, x_right, x_right + side.width, y_top - 50, y_top, fmt(h_mm), f_dim)
     dim_v(img, y_front, y_front + front.height, x_top - 50, x_top, fmt(h_mm), f_dim)
 
-    d.text((x_left - 100, 40), "X3-Tuner Gehäuse", font=f_title, fill=INK)
+    d.text((x_left - 100, 40), title, font=f_title, fill=INK)
     d.text((x_left - 100, 98), "Maße in mm, alle Ansichten im gleichen Maßstab "
            "(%.1f px/mm). Port-Ende (SWD) jeweils unten." % px_mm, font=f_note, fill=INK)
     img.save(out, optimize=True)

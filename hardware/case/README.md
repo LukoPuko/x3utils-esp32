@@ -5,6 +5,12 @@ X3-Tuner-Platine **plus Akku**, ohne Schrauben. Es hat eine flache Ober- und
 Unterseite, 45°-Fasen an allen Kanten und abgeschrägte Ecken. Gedruckt wird
 es am besten in mattem Schwarz. Außenmaß **ca. 42 × 68 × 17 mm**.
 
+> [!NOTE]
+> Das Gehäuse für den **X3-Tuner Mini** (Trägerplatine mit aufgestecktem
+> SuperMini, ca. 78 × 24 × 22 mm) liegt in [`../carrier/case/`](../carrier/case/),
+> beschrieben im [Mini-README](../carrier/README.md#gehäuse). Beide Gehäuse
+> entstehen aus demselben Modell `case_core.scad`.
+
 | Zusammengebaut | Durchsichtig (Aufbau) |
 |---|---|
 | ![Gehäuse](../docs/case-assembly.png) | ![Röntgenansicht](../docs/case-xray.png) |
@@ -37,14 +43,15 @@ Unterschale greift in den Deckel.
 | `stl/x3tuner-case-bottom.stl` | Unterschale: Akkufach, Auflagen für die Platine, Rastrand, Logo-Gravur |
 | `stl/x3tuner-case-lid.stl` | Deckel: Lichtschlitze, Pin-Löcher RESET/BOOT, Niederhalter |
 | `stl/x3tuner-case-print.stl` | beide Teile druckfertig auf einer Platte (Deckel liegt kopfüber) |
-| `x3tuner_case.scad` | parametrisches OpenSCAD-Modell |
+| `x3tuner_case.scad` | OpenSCAD-Datei für dieses Gehäuse (lädt `board_data.scad` und `case_core.scad`) |
+| `case_core.scad` | parametrisches OpenSCAD-Modell, gemeinsam für X3-Tuner und X3-Tuner Mini |
 | `board_data.scad` | Bauteilpositionen, automatisch aus `gen/circuit.py` und der KiCad-Platine erzeugt |
 
 ## Details
 
 * **Akku:** Fach für einen **503040-LiPo** (30 × 40 × 5 mm, ca. 600 mAh) unter
   der Platine, Grundfläche bis 31,5 × 42 mm. Für andere Akkus
-  `BAT = [Breite, Länge, Dicke]` in der `.scad` ändern und neu exportieren.
+  `BAT = [Breite, Länge, Dicke]` in `case_core.scad` ändern und neu exportieren.
 * **USB-C** rechts, **Ein/Aus-Schieber** links mit Griffmulde (jeweils mit
   dem SWD-Ende zu dir). Den Hebel des MSK12C02 schiebst du mit dem Fingernagel.
 * **SWD-Port** an der Stirnseite: Ein 5-poliges Dupont-Buchsengehäuse wird
@@ -92,9 +99,11 @@ und müssen nicht gekürzt werden.
 ```bash
 # nach Änderungen an Platine (circuit.py) oder Gehäuse:
 hardware/gen/make_case.sh     # board_data.scad, STL-Dateien, alle Bilder
+# X3-Tuner Mini: X3_CIRCUIT=circuit_carrier hardware/gen/make_case.sh
 ```
 
-Wichtige Parameter oben in `x3tuner_case.scad`:
+Wichtige Parameter oben in `case_core.scad` (für den Mini zum Teil über `CASE`
+in `gen/circuit_carrier.py` überschrieben):
 
 * `BAT` (Akkufach)
 * `FACET` und `CORNER` (Größe der Fasen)

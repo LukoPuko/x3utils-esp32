@@ -14,6 +14,7 @@ SW1_RIGHT = false;
 SW1_LEVER_X = -0.95;
 J2_XY = [6.0, 5.0];
 J2_FRONT_Y = 0.6;
+J2_DIR = -1;
 J3_PIN1_X = 31.6;
 J3_ROW_Y = 4.04;
 J3_TIP_Y = -6.0;  // pin tips (10.04 mm from the pin row)

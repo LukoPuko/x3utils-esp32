@@ -179,11 +179,11 @@ def set_rect_outline(zone, x0, y0, x1, y1):
         ol.Append(mm(OX + x), mm(OY + y))
 
 
-def add_keepout(board, x0, y0, x1, y1, name):
+def add_keepout(board, x0, y0, x1, y1, name, pour_only=False):
     z = pcbnew.ZONE(board)
     z.SetIsRuleArea(True)
-    z.SetDoNotAllowTracks(True)
-    z.SetDoNotAllowVias(True)
+    z.SetDoNotAllowTracks(not pour_only)
+    z.SetDoNotAllowVias(not pour_only)
     z.SetDoNotAllowCopperPour(True)
     z.SetDoNotAllowPads(True)
     z.SetDoNotAllowFootprints(False)
@@ -331,7 +331,7 @@ def stage_place():
         ref.SetTextSize(pcbnew.VECTOR2I(mm(0.6), mm(0.6)))
         ref.SetTextThickness(mm(0.1))
         fp.Value().SetVisible(False)
-        if p.ref == "U2":
+        if p.ref == getattr(C, "CHARGER_REF", "U2"):
             # solid (no thermal relief) exposed pad: the charger is the hot spot
             for pad in fp.Pads():
                 if pad.GetNumber() == "9":
@@ -369,6 +369,9 @@ def stage_place():
         add_keepout(board, -1, -1, C.BOARD_W + 1, C.ANTENNA_Y, "ANTENNA_KEEPOUT")
     for x0, y0, x1, y1, name in getattr(C, "KEEPOUTS", []):
         add_keepout(board, x0, y0, x1, y1, name)
+    # copper pour keep-outs that tracks may still cross (e.g. below an antenna)
+    for x0, y0, x1, y1, name in getattr(C, "POUR_KEEPOUTS", []):
+        add_keepout(board, x0, y0, x1, y1, name, pour_only=True)
 
     pcbnew.SaveBoard(PCB, board)
     print("placed", len(C.PARTS), "parts,", len(nets), "nets ->", PCB)
@@ -501,7 +504,7 @@ def add_gnd_vias(board, net):
             # skip the module's antenna keep-out and component bodies
             inside_part = any(c.Contains(p) for c in courtyards) or any(
                 x0 - 0.6 < x < x1 + 0.6 and y0 - 0.6 < y < y1 + 0.6
-                for x0, y0, x1, y1, _ in getattr(C, "KEEPOUTS", []))
+                for x0, y0, x1, y1, _ in getattr(C, "KEEPOUTS", []) + getattr(C, "POUR_KEEPOUTS", []))
             if not inside_part and _free(board, net, x, y, 0.3 + 0.2, obstacles):
                 v = _new_via(board, net, x, y)
                 obstacles.append((v, pcbnew.F_Cu))

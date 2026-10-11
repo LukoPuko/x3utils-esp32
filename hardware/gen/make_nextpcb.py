@@ -3,7 +3,8 @@
 NextPCB assembles the first order for free, but only for boards of at least
 50 x 50 mm. The X3-Tuner is 38 x 54.5 mm, so this adds a 4 mm rail on the left
 and right (3 mm milled gap, mouse-bite tabs from circuit.PANEL_TABS): 52 x
-54.5 mm. The rails snap off after assembly like on the 10-up panel.
+54.5 mm; boards that are narrower set wider rails (C.NEXTPCB_RAIL). The rails
+snap off after assembly like on the 10-up panel.
 
 Writes production/nextpcb/: Gerber zip, CPL and an MPN BOM (NextPCB sources
 the parts from its HQ Online store, which does not use LCSC numbers).
@@ -33,7 +34,7 @@ def panelize():
         "--layout", "grid; rows: 1; cols: 1; renameref: {orig}",
         "--tabs", "annotation",
         "--cuts", "mousebites; drill: 0.5mm; spacing: 0.8mm; offset: 0.2mm; prolong: 0.5mm",
-        "--framing", "railslr; width: 4mm; space: 3mm",
+        "--framing", "railslr; width: %smm; space: 3mm" % getattr(C, "NEXTPCB_RAIL", 4),
         "--post", "millradius: 1mm; refillzones: true",
         SRC, BOARD,
     ], check=True, capture_output=True)

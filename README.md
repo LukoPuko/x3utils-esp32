@@ -82,8 +82,9 @@ ESP32-C3 SuperMini (about 1.80 €) plugs into two sockets. The carrier adds:
 - the SWD header.
 
 Every part is machine-assembled, nothing to solder. In volume a complete board
-including the SuperMini comes to about 3.75 €. Build the firmware with
-`pio run -e x3carrier -t upload`.
+including the SuperMini comes to about 3.75 €. The board is a 20.5 × 65 mm
+stick; with its 3D-printed case and a 400 mAh LiPo the device measures about
+78 × 24 × 22 mm. Build the firmware with `pio run -e x3carrier -t upload`.
 
 ### Option B — any ESP32 dev board
 
