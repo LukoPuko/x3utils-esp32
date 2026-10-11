@@ -91,7 +91,7 @@ def fab(panel=PANEL, out=OUT, name=C.PROJECT + "-panel", rot_fix=ROT_FIX):
         for row in csv.DictReader(fi):
             ref = row["Ref"]
             p = parts.get(ref.rsplit("_", 1)[0])
-            if p is None or not p.bom or not p.lcsc:
+            if p is None or not p.bom:
                 continue
             rot = float(row["Rot"])
             for pat, add in rot_fix:

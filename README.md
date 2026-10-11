@@ -75,16 +75,20 @@ Build the firmware with `pio run -e x3tuner -t upload`.
 ### Option A2 — X3-Tuner Mini: carrier board for an ESP32-C3 SuperMini
 
 [`hardware/carrier/`](hardware/carrier/) is a cheaper board: a ready-made
-ESP32-C3 SuperMini (about 1.80 €) plugs into two sockets. The carrier adds:
-- a 1S LiPo charger and an on/off switch;
+ESP32-C3 SuperMini (about 1.80 €) is pushed onto pin headers the factory solders
+to the carrier and is held by the case lid. The carrier adds:
+- a 1S LiPo charger with reverse-polarity protection, and an on/off switch;
 - the switched VCU supply;
 - battery, USB and VCU voltage sensing;
 - the SWD header.
 
 Every part is machine-assembled, nothing to solder. In volume a complete board
 including the SuperMini comes to about 3.75 €. The board is a 20.5 × 65 mm
-stick; with its 3D-printed case and a 400 mAh LiPo the device measures about
-78 × 24 × 22 mm. Build the firmware with `pio run -e x3carrier -t upload`.
+stick; with its 3D-printed case and a LiPo the device measures about
+78 × 24 × 21 mm. The case is fully closed (no button holes) and the firmware can
+be locked against readout with Wi-Fi-only OTA updates — see
+[hardware/carrier/SECURITY.md](hardware/carrier/SECURITY.md). Build the firmware
+with `pio run -e x3carrier -t upload`.
 
 ### Option B — any ESP32 dev board
 

@@ -17,6 +17,7 @@
 #include "board.h"
 #include "config.h"
 #include "fw_ident.h"
+#include "ota.h"
 #include "swd.h"
 #include "web_ui.h"
 #include "x3_ops.h"
@@ -262,6 +263,13 @@ static void routes() {
     delay(300);
     ESP.restart();
   });
+
+#ifdef X3_OTA
+  // Signed firmware update over Wi-Fi (the app's only update path once USB
+  // download mode is locked). Gated by the AP password so an open hotspot is
+  // never flashable remotely; Secure Boot enforces the signature on reboot.
+  ota::registerRoutes(server, ops, cfg.apPass);
+#endif
 
   server.onNotFound([](AsyncWebServerRequest *req) { req->send(404, "text/plain", "not found"); });
 }

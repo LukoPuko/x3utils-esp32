@@ -58,7 +58,7 @@ def gerbers():
 def bom():
     groups = {}
     for p in C.PARTS:
-        if not p.bom or not p.lcsc:
+        if not p.bom:
             continue
         key = (p.value, p.fp.split(":")[1], p.lcsc)
         groups.setdefault(key, []).append(p.ref)
@@ -75,7 +75,7 @@ def bom_generic():
     """Assembler-neutral BOM (for NextPCB, PCBWay, ... quotes)."""
     groups = {}
     for p in C.PARTS:
-        if not p.bom or not p.lcsc:
+        if not p.bom:
             continue
         key = (p.value, p.fp.split(":")[1], p.lcsc)
         groups.setdefault(key, []).append(p)
@@ -111,7 +111,7 @@ def cpl():
         for row in csv.DictReader(fi):
             ref = row["Ref"]
             p = parts.get(ref)
-            if p is None or not p.bom or not p.lcsc:
+            if p is None or not p.bom:
                 continue
             rot = float(row["Rot"])
             pkg = row["Package"]
@@ -142,6 +142,10 @@ def main():
     os.makedirs(DOCS, exist_ok=True)
     z, names = gerbers()
     print("gerbers ->", os.path.relpath(z, HW), "(%d files)" % len(names))
+    missing = sorted({p.ref for p in C.PARTS if p.bom and not p.lcsc})
+    if missing:
+        print("WARNING: no LCSC number for " + ", ".join(missing)
+              + " — fill it in the BOM before ordering (they stay unplaced otherwise)")
     b, n, lines = bom()
     print("bom     ->", os.path.relpath(b, HW), "(%d parts, %d lines)" % (n, lines))
     print("bom     ->", os.path.relpath(bom_generic(), HW), "(assembler-neutral)")

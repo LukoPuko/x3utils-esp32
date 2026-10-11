@@ -7,7 +7,7 @@ CASE_USB_END = true;  // SuperMini USB-C in the end face
 USB_X = 10.25;
 USB_FRONT_Y = 67.0;
 USB_Y = 0; USB_RIGHT = false; USB_FRONT_X = 0;  // (side USB unused)
-USB_DZ = 13.63;  // USB-C centre above the carrier top
+USB_DZ = 5.13;  // USB-C centre above the carrier top
 CASE_ANT_EXT = 2.1;  // case end 0.45 mm in front of the USB-C
 SW1_Y = 18.0;
 SW1_RIGHT = false;
@@ -25,16 +25,16 @@ LED_CHG_XY = [16.6, 37.9];  // red + green, one window
 LID_POSTS = [[2.4, 39.0]];
 // [x, y of the USB-C edge, USB-C direction, length, width, PCB underside above
 //  carrier top, PCB thickness, pin 1 from USB edge, row offset, USB-C overhang]
-SUPERMINI = [10.25, 65.0, 90, 22.5, 18.0, 11.0, 1.0, 3.4, 7.62, 2.0];
-CASE_BAT = [21.2, 33.3, 9.5];  // pocket under the lid: width, length, thickness
+SUPERMINI = [10.25, 65.0, 90, 22.5, 18.0, 2.5, 1.0, 3.4, 7.62, 2.0];
+CASE_BAT = [21.2, 33.3, 8.0];  // pocket under the lid: width, length, thickness
 CASE_BAT_LID = [-0.35, 2.2];
-CASE_BAT_LABEL = ["LiPo 802030", "3,7 V  400 mAh"];
-CASE_LID_BLOCKS = [[2.03, 43.0, 3.23, 54.5, 14.2], [17.27, 43.0, 18.47, 54.5, 14.2], [4.37, 0.8, 16.13, 2.0, 2.65], [0.0, 35.5, 6.0, 36.1, 6.9]];  // [x0, y0, x1, y1, bottom above PCB top]
+CASE_BAT_LABEL = ["LiPo 602030", "3,7 V  400 mAh"];
+CASE_LID_BLOCKS = [[1.75, 42.7, 7.25, 43.6, 3.5], [13.25, 42.7, 18.75, 43.6, 3.5], [4.37, 0.8, 16.13, 2.0, 2.65], [1.0, 35.5, 19.5, 36.3, 5.5]];  // [x0, y0, x1, y1, bottom above PCB top]
 CASE_LED_SLITS = [LED_CHG_XY];
 CASE_PIN_BUTTONS = [];
-CASE_WINDOWS = [[3.65, 55.0, 7.65, 64.0], [12.85, 55.0, 16.85, 64.0]];  // [x0, y0, x1, y1]
-CASE_BAT_GAP = 1.8;
-CASE_TOP_CLEAR = 16.4;
+CASE_WINDOWS = [];  // [x0, y0, x1, y1]
+CASE_BAT_GAP = 3.2;
+CASE_TOP_CLEAR = 13.5;
 CASE_FACET_IN = 1.0;
 CASE_CORNER = 4.0;
 CASE_USB_HOLE = [4.8, 10.2];

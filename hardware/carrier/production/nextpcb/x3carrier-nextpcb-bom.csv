@@ -4,7 +4,7 @@ Designator,Qty,Value,Package,Manufacturer,MPN,Description
 D1,1,B5819W,D_SOD-123,CJ,B5819W SL,"Akku -> 5V-Pin, sperrt bei USB"
 D2,1,red,LED_0603_1608Metric,KENTO,KT-0603R,LED rot = lädt
 D3,1,green,LED_0805_2012Metric,KENTO,KT-0805G,LED grün = voll
-"J1,J2",2,Sockel SuperMini,PinSocket_1x08_P2.54mm_Vertical,,"PM2.54-1X8PM-H85 (Buchsenleiste 1x8, 2,54 mm, H 8,5 mm)","Buchsenleiste 1x8 2,54 mm (H 8,5 mm) fuer ESP32-C3 SuperMini"
+"J1,J2",2,Stift SuperMini,PinHeader_1x08_P2.54mm_Vertical,,"Stiftleiste 1x8 2,54 mm THT (LCSC-Nr. ergaenzen)","Stiftleiste 1x8 2,54 mm fuer ESP32-C3 SuperMini (aufgesteckt)"
 J3,1,AKKU,JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,JST,S2B-PH-SM4-TB(LF)(SN),"LiPo 1S mit Schutzschaltung, JST-PH 2.0, + = Pin 1"
 J4,1,SWD-ZIEL,PinHeader_1x05_P2.54mm_Horizontal,hanxia,"HX PZ2.54-1x5P WZ (1x5 2.54 mm, gewinkelt, THT)",Stiftleiste 1x5 gewinkelt zum Scooter (3V3 DIO CLK RST GND)
 "Q1,Q2,Q3",3,AO3401A,SOT-23,AOS,AO3401A,Ein/Aus Akku (P-MOSFET)

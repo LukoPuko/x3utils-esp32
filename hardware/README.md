@@ -17,9 +17,10 @@ Ersetzt **ST-LINK, PC und Kabelsalat** – bedient wird alles per Handy-Browser
 
 > [!TIP]
 > **Noch günstiger: [X3-Tuner Mini](carrier/)**. Das ist eine Trägerplatine, auf die ein fertiges
-> ESP32-C3 SuperMini (ca. 1,80 €) nur aufgesteckt wird. Akku, Laden, Schalter und SWD sind
-> drauf, alles wird bestückt. In Serie kostet ein Gerät damit ca. 3,75 € statt 5,40 €.
-> Mit Gehäuse ist es ein Stick von ca. 78 × 24 × 22 mm.
+> ESP32-C3 SuperMini (ca. 1,80 €) nur aufgesteckt wird (Stiftleisten bestückt die Fabrik). Akku,
+> Laden, Schalter und SWD sind drauf, alles wird bestückt. In Serie kostet ein Gerät damit ca.
+> 3,75 € statt 5,40 €. Mit Gehäuse ist es ein geschlossener Stick von ca. 78 × 24 × 21 mm; die
+> Firmware lässt sich gegen Auslesen sperren (nur WLAN-OTA, siehe [carrier/SECURITY.md](carrier/SECURITY.md)).
 
 > [!IMPORTANT]
 > **Status: Design fertig (Rev. 1.1, Spar-Version mit ESP32-C3), noch nicht gefertigt.** Die Platine besteht den

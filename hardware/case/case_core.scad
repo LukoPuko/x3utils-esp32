@@ -345,12 +345,11 @@ module sm_rows(h, z) {  // footprint of both pin rows (socket / male header body
 module supermini_model() {
   t = Z_PCB_TOP;
   top = SM_Z + sm(6);
-  color("#151515") sm_rows(8.5, t);                  // 2 x 1x8 sockets on the carrier
-  color("#262626") sm_rows(sm(5) - 8.5, t + 8.5);    // plastic of the SuperMini's pin headers
+  color("#262626") sm_rows(sm(5), t);                // 2 x 1x8 male header plastic on the carrier
+  sm_frame() for (y = [sm(8), -sm(8)], i = [0:7])    // header pins: through the module, poking out the top
+    color("#c9c9c9") translate([-sm(7) - i * 2.54, y, t]) cylinder(d = 0.64, h = sm(5) + 6.0, $fn = 8);
   color("#1d3d7a") sm_pcb();
   sm_frame() {
-    for (y = [sm(8), -sm(8)], i = [0:7])            // header pin tips with solder
-      color("#c9c9c9") translate([-sm(7) - i * 2.54, y, top]) cylinder(d1 = 1.4, d2 = 0.7, h = 2.0, $fn = 10);
     color("#1a1a1a") translate([-13, 0, top]) rotate(45) translate([-2.5, -2.5, 0]) cube([5, 5, 0.9]);  // ESP32-C3
     color("#e8dcc0") translate([-sm(3) + 0.6, -1.6, top]) cube([1.6, 3.2, 1.0]);  // chip antenna
     color("#d0d3d8") translate([sm(9) - 7.35, 0, top + 1.63]) rotate([0, 90, 0]) hull()

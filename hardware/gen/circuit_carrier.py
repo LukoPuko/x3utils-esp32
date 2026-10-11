@@ -34,7 +34,7 @@ SUBDIR = "carrier"          # hardware/carrier/{kicad,production,docs}
 TITLE = "X3-Tuner Mini — Traeger fuer ESP32-C3 SuperMini"
 SHORT_NAME = "X3-Tuner Mini"
 SCH_COMMENT = "Stecksockel fuer ESP32-C3 SuperMini + Akku/Lader + SWD zur Scooter-VCU"
-REV = "1.1"
+REV = "1.2"
 
 # ── Board: a long, narrow "stick" ────────────────────────────────────────────
 # Front edge (y = 0): the SuperMini's USB-C. Rear edge (y = BOARD_H): the SWD
@@ -85,7 +85,12 @@ SOCKET_IO5_ROW = {"1": "SWDIO",         # GPIO5
                   "3": "TGT_EN",        # GPIO7  low = VCU supply on
                   "4": None, "5": None, "6": None, "7": None, "8": None}
 
-SOCKET_FP = "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical"
+# The SuperMini comes WITHOUT soldered pins, so the carrier carries the pins:
+# the factory solders two 1x8 male headers, the SuperMini is pushed onto them
+# and the case lid clamps it down. Same pad/drill as the socket, so the layout
+# is unchanged; only the part (and the 3D height) differ.
+SOCKET_FP = "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
+HEADER_LCSC = ""   # 2.54 mm 1x8 male header, THT — add the LCSC no. in the BOM
 
 # ── Rear part (under the battery), from the battery socket to the SWD edge ──
 BAT_Y0 = 29.5                         # front end of the battery pocket
@@ -94,13 +99,13 @@ SWD_ROW_Y = BOARD_H - 4.04            # SWD header pin row (pins over the rear e
 SWD_X = [CX + 5.08 - 2.54 * i for i in range(5)]   # pin 1 (3V3) ... pin 5 (GND)
 
 PARTS = [
-    # ── Sockets for the SuperMini ───────────────────────────────────────────
-    Part("J1", "Connector_Generic:Conn_01x08", "Sockel SuperMini", SOCKET_FP,
-         "C42431840", SOCKET_5V_ROW, (60, 60), (ROW_5V_X, SM_PIN1_Y, 0),
-         "Buchsenleiste 1x8 2,54 mm (H 8,5 mm) fuer ESP32-C3 SuperMini"),
-    Part("J2", "Connector_Generic:Conn_01x08", "Sockel SuperMini", SOCKET_FP,
-         "C42431840", SOCKET_IO5_ROW, (60, 110), (ROW_IO5_X, SM_PIN1_Y, 0),
-         "Buchsenleiste 1x8 2,54 mm (H 8,5 mm) fuer ESP32-C3 SuperMini"),
+    # ── Pin headers the SuperMini is pushed onto ─────────────────────────────
+    Part("J1", "Connector_Generic:Conn_01x08", "Stift SuperMini", SOCKET_FP,
+         HEADER_LCSC, SOCKET_5V_ROW, (60, 60), (ROW_5V_X, SM_PIN1_Y, 0),
+         "Stiftleiste 1x8 2,54 mm fuer ESP32-C3 SuperMini (aufgesteckt)"),
+    Part("J2", "Connector_Generic:Conn_01x08", "Stift SuperMini", SOCKET_FP,
+         HEADER_LCSC, SOCKET_IO5_ROW, (60, 110), (ROW_IO5_X, SM_PIN1_Y, 0),
+         "Stiftleiste 1x8 2,54 mm fuer ESP32-C3 SuperMini (aufgesteckt)"),
 
     # ── Charger TP4056 (fed from the SuperMini's 5V pin = USB VBUS) ───────────
     # between the socket rows, below the USB end of the SuperMini
@@ -179,7 +184,7 @@ KEEPOUTS = []
 VIAS_UNDER = ()
 
 MPN = {
-    "C42431840": ("", "PM2.54-1X8PM-H85 (Buchsenleiste 1x8, 2,54 mm, H 8,5 mm)"),
+    "": ("", "Stiftleiste 1x8 2,54 mm THT (LCSC-Nr. ergaenzen)"),
     "C16581": ("TOPPOWER", "TP4056-42-ESOP8"),
     "C15127": ("AOS", "AO3401A"),
     "C8598": ("CJ", "B5819W SL"),
@@ -253,17 +258,21 @@ NOTES = [
 ]
 
 # ── 3D case (make_case_data.py -> hardware/carrier/case/board_data.scad) ─────
-# The SuperMini sits on the 8.5 mm sockets plus the 2.5 mm plastic of its own
-# pin headers, so its PCB underside is 11 mm above this board. The LiPo
-# (802030: 8 x 20 x 31 mm, 400 mAh) is taped into a pocket under the lid,
-# above the rear part of the board. Board mm here; make_case_data.py converts
-# to the case coordinates.
-SM_HEIGHT = 11.0            # SuperMini PCB underside above the carrier top
+# The SuperMini has no pins of its own; it is pushed onto the carrier's 2.54 mm
+# male headers and rests on their 2.5 mm plastic, so its PCB underside is 2.5 mm
+# above this board (much flatter than a socketed module). The header pins poke
+# ~5 mm above the module; the lid clears them. A LiPo up to 21 x 33 x 7 mm
+# (e.g. 602030/702030, ~400 mAh) is taped into a pocket under the lid, above
+# the rear of the board.
+SM_HEIGHT = 2.5            # SuperMini PCB underside above the carrier top (header plastic)
 SM_PCB_T = 1.0
 SM_USB_OVERHANG = 2.0       # USB-C shell beyond the SuperMini's PCB edge
-SM_PIN_TIPS = 2.0           # header pins + solder above the SuperMini
-TOP_CLEAR = 16.4            # carrier top to lid underside
-BAT_POCKET = (BOARD_W + 0.7, BOARD_H - 2.2 - BAT_Y0, 9.5)   # width, length, thickness
+SM_TOP = SM_HEIGHT + SM_PCB_T   # SuperMini top surface above the carrier
+# TOP_CLEAR is driven by the LiPo over the rear: its underside must clear the
+# JST socket (the tallest rear part, ~4.9 mm). Pocket 8 mm holds a 6-7 mm cell;
+# a thicker 8 mm cell (802030) needs CASE_TOP_CLEAR ~ 15.
+TOP_CLEAR = 13.5            # carrier top to lid underside
+BAT_POCKET = (BOARD_W + 0.7, BOARD_H - 2.2 - BAT_Y0, 8.0)   # width, length, thickness
 CASE = dict(
     name="x3mini",
     title="X3-Tuner Mini Gehäuse",
@@ -275,21 +284,20 @@ CASE = dict(
                    pcb_t=SM_PCB_T, pin1=SM_PIN1_Y - SM_USB_Y, row=7.62,
                    usb_overhang=SM_USB_OVERHANG),
     # battery pocket under the lid: front end at BAT_Y0, reaching to the rear
-    battery=dict(y0=BAT_Y0, size=BAT_POCKET, label=["LiPo 802030", "3,7 V  400 mAh"]),
-    led_slits=("chg",),     # the SuperMini's own LEDs show through the windows
-    pin_buttons=(),
-    # lid windows over BOOT + LED and RST + LED of the SuperMini
-    windows=[(CX - 6.6, SM_USB_Y + 1.0, CX - 2.6, SM_USB_Y + 10.0),
-             (CX + 2.6, SM_USB_Y + 1.0, CX + 6.6, SM_USB_Y + 10.0)],
+    battery=dict(y0=BAT_Y0, size=BAT_POCKET, label=["LiPo 602030", "3,7 V  400 mAh"]),
+    led_slits=("chg",),     # only the carrier's charge LED shows through the lid
+    pin_buttons=(),         # no RESET/BOOT access: the module is fully enclosed
+    windows=[],             # no openings over the SuperMini (no readout/flash access)
     # blocks hanging from the lid: (x0, y0, x1, y1, bottom above the board top)
     lid_blocks=[
-        # press the SuperMini into its sockets (on the pin tips of both rows)
-        (ROW_5V_X - 0.6, 10.5, ROW_5V_X + 0.6, SM_END_Y - 0.5, SM_HEIGHT + SM_PCB_T + SM_PIN_TIPS + 0.2),
-        (ROW_IO5_X - 0.6, 10.5, ROW_IO5_X + 0.6, SM_END_Y - 0.5, SM_HEIGHT + SM_PCB_T + SM_PIN_TIPS + 0.2),
-        # hold the rear of the board down on the SWD header body, rear battery stop
+        # clamp the SuperMini down onto the headers: two ribs at the rear corners,
+        # behind the last pins and clear of the centre chip antenna
+        (CX - 8.5, SM_END_Y - 1.1, CX - 3.0, SM_END_Y - 0.2, SM_TOP),
+        (CX + 3.0, SM_END_Y - 1.1, CX + 8.5, SM_END_Y - 0.2, SM_TOP),
+        # hold the rear of the board down on the SWD header body
         (SWD_X[4] - 0.8, BOARD_H - 2.0, SWD_X[0] + 0.8, BOARD_H - 0.8, 2.65),
-        # front battery stop on the left (the light tube stops it on the right)
-        (0.0, BAT_Y0 - 0.6, 6.0, BAT_Y0, TOP_CLEAR - BAT_POCKET[2]),
+        # front battery stop, from the lid down to the battery underside
+        (1.0, BAT_Y0 - 0.8, BOARD_W - 1.0, BAT_Y0, TOP_CLEAR - BAT_POCKET[2]),
     ],
     # renders: (file, part, eye offset, look-at offset from the case centre)
     cameras=[("case-assembly.png", "assembly", (-62, 70, 52), (0, 0, 0)),
@@ -299,8 +307,8 @@ CASE = dict(
              ("case-exploded.png", "exploded", (-66, 74, 58), (0, 0, 12))],
     sheet=("Schalter", "Rechts", "Stirnseite USB-C"),
     scad=dict(
-        CASE_BAT_GAP=1.8,           # socket / header tails below the board
-        CASE_TOP_CLEAR=TOP_CLEAR,   # SuperMini's USB-C top at ~15.3
+        CASE_BAT_GAP=3.2,           # THT pin-header / SWD tails below the board
+        CASE_TOP_CLEAR=TOP_CLEAR,   # driven by the 8 mm LiPo under the lid
         CASE_FACET_IN=1.0,          # room for the battery edges under the lid
         CASE_CORNER=4.0,            # corner facets clear the board / SuperMini corners
         CASE_USB_HOLE=[4.8, 10.2],  # tolerance for the SuperMini height

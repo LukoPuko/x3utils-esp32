@@ -4,7 +4,7 @@ Comment,Designator,Footprint,LCSC Part #
 B5819W,D1,D_SOD-123,C8598
 red,D2,LED_0603_1608Metric,C2286
 green,D3,LED_0805_2012Metric,C2297
-Sockel SuperMini,"J1,J2",PinSocket_1x08_P2.54mm_Vertical,C42431840
+Stift SuperMini,"J1,J2",PinHeader_1x08_P2.54mm_Vertical,
 AKKU,J3,JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,C295747
 SWD-ZIEL,J4,PinHeader_1x05_P2.54mm_Horizontal,C32713264
 AO3401A,"Q1,Q2,Q3",SOT-23,C15127
