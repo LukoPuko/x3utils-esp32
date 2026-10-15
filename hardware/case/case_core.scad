@@ -67,6 +67,7 @@ USB_HOLE = is_undef(CASE_USB_HOLE) ? [3.9, 9.7] : CASE_USB_HOLE;  // USB-C openi
 // recess for the cable's overmould around the USB-C opening: height, width, depth into the wall
 USB_LEADIN = is_undef(CASE_USB_LEADIN) ? [USB_HOLE[0] + 1.1, USB_HOLE[1] + 1.1, 0.7] : CASE_USB_LEADIN;
 POST_D = is_undef(CASE_POST_D) ? 2.0 : CASE_POST_D;       // lid posts pressing the PCB down
+LOGO_MAIN = is_undef(CASE_LOGO) ? "X3·TUNER" : CASE_LOGO;   // main bottom engraving ("" = none)
 LOGO_SUB = is_undef(CASE_LOGO_SUB) ? "SWD · x3utils-esp32" : CASE_LOGO_SUB;
 LOGO_ROT = is_undef(CASE_LOGO_ROT) ? 0 : CASE_LOGO_ROT;   // 90: logo along the length (narrow cases)
 LABELS_UP = is_undef(CASE_LABELS_UP) ? false : CASE_LABELS_UP;  // SWD pin names above the slot
@@ -143,13 +144,18 @@ module end_face_labels(from = ENGRAVE - 0.01, depth = ENGRAVE + 1) {  // pin nam
       text(J3_LABELS[i], size = 1.7, font = "Liberation Sans:style=Bold", halign = LABELS_UP ? "left" : "right",
            valign = "center");
 }
+// Bottom engraving: main line LOGO_MAIN over sub line LOGO_SUB. Set both to ""
+// (CASE_LOGO / CASE_LOGO_SUB) to leave the underside blank.
 module bottom_logo(from = ENGRAVE - 0.01, depth = ENGRAVE) {  // readable when the device is turned over
-  translate([BOARD_W / 2, (IN[1] + IN[3]) / 2, from - depth]) linear_extrude(depth) mirror([1, 0, 0]) rotate(LOGO_ROT) {
-    translate([0, 3]) text("X3·TUNER", size = 4.2, font = "Liberation Sans:style=Bold",
-                          halign = "center", valign = "center", spacing = 1.15);
-    translate([0, -3.5]) text(LOGO_SUB, size = 2.0, font = "Liberation Sans",
-                             halign = "center", valign = "center");
-  }
+  if (LOGO_MAIN != "" || LOGO_SUB != "")
+    translate([BOARD_W / 2, (IN[1] + IN[3]) / 2, from - depth]) linear_extrude(depth) mirror([1, 0, 0]) rotate(LOGO_ROT) {
+      if (LOGO_MAIN != "")
+        translate([0, LOGO_SUB != "" ? 3 : 0]) text(LOGO_MAIN, size = 4.2, font = "Liberation Sans:style=Bold",
+                              halign = "center", valign = "center", spacing = 1.15);
+      if (LOGO_SUB != "")
+        translate([0, LOGO_MAIN != "" ? -3.5 : 0]) text(LOGO_SUB, size = 2.0, font = "Liberation Sans",
+                               halign = "center", valign = "center");
+    }
 }
 module engraving_ink() { color("#a9aeb6") { end_face_labels(ENGRAVE - 0.01, 0.15); bottom_logo(ENGRAVE - 0.01, 0.15); } }
 
